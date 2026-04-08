@@ -20,6 +20,10 @@ export class GameHandler {
         this.backgroundImg = new Image();
         this.backgroundImg.src = 'game/graphics/Background.png';
 
+        // Load grass image
+        this.grassImg = new Image();
+        this.grassImg.src = 'game/graphics/Grass.png';
+
         this.setupEventListeners();
     }
 
@@ -71,16 +75,9 @@ export class GameHandler {
     }
 
     drawGrass() {
-        this.ctx.fillStyle = "#228B22";
-        this.ctx.fillRect(0, this.grassY, this.canvas.width, this.grassHeight);
-
-        this.ctx.fillStyle = "#006400";
-        for (let i = 0; i < this.canvas.width; i += 4) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(i, this.grassY);
-            this.ctx.lineTo(i + 2, this.grassY - 3);
-            this.ctx.lineTo(i + 4, this.grassY);
-            this.ctx.fill();
+        if (this.grassImg.complete) {
+            this.ctx.imageSmoothingEnabled = false;
+            this.ctx.drawImage(this.grassImg, 0, this.grassY, this.canvas.width, this.grassHeight);
         }
     }
 
