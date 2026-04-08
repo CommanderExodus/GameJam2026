@@ -10,7 +10,7 @@ export function drawUI(ctx, score, mouseX, mouseY) {
     ctx.imageSmoothingEnabled = false;
 
     if (crosshairImg.complete) {
-        const scale = 0.5; // adjust to make crosshair right size
+        const scale = 0.5;
         const w = crosshairImg.width * scale;
         const h = crosshairImg.height * scale;
         ctx.drawImage(crosshairImg, mouseX - w / 2, mouseY - h / 2, w, h);
