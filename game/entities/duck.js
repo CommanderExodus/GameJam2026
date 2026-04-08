@@ -1,13 +1,13 @@
 export class Duck {
     constructor(canvas, grassY) {
-        this.size = 40;
-        this.x = Math.random() * (canvas.width - this.size - 40) + 20;
-        this.y = grassY + 10;
+        this.size = 8;
+        this.x = Math.random() * (canvas.width - this.size - 8) + 4;
+        this.y = grassY + 2;
 
-        this.vy = -(Math.random() * 6 + 10);
-        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = -(Math.random() * 1.2 + 2);
+        this.vx = (Math.random() - 0.5) * 0.8;
 
-        this.gravity = 0.25;
+        this.gravity = 0.05;
         this.isDead = false;
     }
 
@@ -23,9 +23,9 @@ export class Duck {
 
         if (!this.isDead) {
             ctx.fillStyle = "white";
-            ctx.fillRect(this.x + 25, this.y + 10, 8, 8);
+            ctx.fillRect(this.x + 5, this.y + 2, 2, 2);
             ctx.fillStyle = "black";
-            ctx.fillRect(this.x + 29, this.y + 12, 4, 4);
+            ctx.fillRect(this.x + 6, this.y + 2, 1, 1);
         }
     }
 }
