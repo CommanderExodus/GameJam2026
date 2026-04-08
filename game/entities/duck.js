@@ -20,7 +20,7 @@ export class Duck {
         this.y += this.vy;
     }
 
-    draw() {
+    draw(ctx) {
         ctx.fillStyle = this.isDead ? "#555" : "#FF4500"; // Gray if dead, Orange/Red if alive
         ctx.fillRect(this.x, this.y, this.size, this.size);
 
