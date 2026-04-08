@@ -13,7 +13,7 @@ export class GameHandler {
         this.mouseY = canvas.height / 2;
         this.isShooting = false;
         this.flashTimer = 0;
-        this.grassHeight = 150;
+        this.grassHeight = 30;
         this.grassY = canvas.height - this.grassHeight;
 
         // Load background image
@@ -26,8 +26,11 @@ export class GameHandler {
     setupEventListeners() {
         this.canvas.addEventListener('mousemove', (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            this.mouseX = e.clientX - rect.left;
-            this.mouseY = e.clientY - rect.top;
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+
+            this.mouseX = (e.clientX - rect.left) * scaleX;
+            this.mouseY = (e.clientY - rect.top) * scaleY;
         });
 
         this.canvas.addEventListener('mousedown', (e) => {
@@ -45,7 +48,7 @@ export class GameHandler {
 
                         if (this.mouseY < this.grassY) {
                             d.isDead = true;
-                            d.vy = 8;
+                            d.vy = 2;
                             d.vx = 0;
                             this.score++;
                             break;
@@ -72,16 +75,17 @@ export class GameHandler {
         this.ctx.fillRect(0, this.grassY, this.canvas.width, this.grassHeight);
 
         this.ctx.fillStyle = "#006400";
-        for (let i = 0; i < this.canvas.width; i += 20) {
+        for (let i = 0; i < this.canvas.width; i += 4) {
             this.ctx.beginPath();
             this.ctx.moveTo(i, this.grassY);
-            this.ctx.lineTo(i + 10, this.grassY - 15);
-            this.ctx.lineTo(i + 20, this.grassY);
+            this.ctx.lineTo(i + 2, this.grassY - 3);
+            this.ctx.lineTo(i + 4, this.grassY);
             this.ctx.fill();
         }
     }
 
     update() {
+        this.ctx.imageSmoothingEnabled = false;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw background
@@ -101,7 +105,8 @@ export class GameHandler {
         }
 
         this.drawGrass();
-        drawGun(this.ctx, this.canvas, this.mouseX, this.mouseY, this.flashTimer);
+        // pass frames to drawGun to calculate sway based on time
+        drawGun(this.ctx, this.canvas, this.mouseX, this.mouseY, this.flashTimer, this.frames);
         
         if (this.flashTimer > 0) {
             this.flashTimer--;
