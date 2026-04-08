@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck Shooting Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 2px solid #333;
+            cursor: crosshair;
+            background-color: #E0F6FF;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <p>Score: <span id="score">0</span></p>
+        <p>Ammo: <span id="ammo">10</span></p>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let ammo = 10;
+        const ducks = [];
+
+        const duckImage = new Image();
+        duckImage.src = 'duckling - 481x649.png';
+
+        class Duck {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * (canvas.height * 0.6);
+                this.width = 30;
+                this.height = 40;
+                this.speedX = Math.random() * 4 - 2;
+                this.speedY = Math.random() * 2 - 1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                if (duckImage.complete) {
+                    ctx.drawImage(duckImage, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+                }
+            }
+
+            isHit(x, y) {
+                return Math.hypot(this.x - x, this.y - y) < this.width / 2;
+            }
+        }
+
+        function playShootSound() {
+            const audio = new Audio('freesound_community-shoot-1-81135.mp3');
+            audio.play();
+        }
+
+        function spawnDucks() {
+            for (let i = 0; i < 5; i++) {
+                ducks.push(new Duck());
+            }
+        }
+
+        function drawBackground() {
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#87CEEB');
+            skyGradient.addColorStop(1, '#E0F6FF');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Back wall with stripes
+            ctx.fillStyle = '#FF6347'; // Red base
+            ctx.fillRect(0, 80, canvas.width, canvas.height - 180);
+            ctx.fillStyle = '#FFFF00'; // Yellow stripes
+            for (let x = 0; x < canvas.width; x += 60) {
+                ctx.fillRect(x, 80, 30, canvas.height - 180);
+            }
+
+            // Decorative stars on back wall
+            ctx.fillStyle = '#0000FF'; // Blue stars
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * canvas.width;
+                const y = 80 + Math.random() * (canvas.height - 260);
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Wooden stand at bottom
+            ctx.fillStyle = '#8B4513'; // Saddle brown
+            ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+            // Wood grain lines
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            for (let y = canvas.height - 110; y < canvas.height; y += 10) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Hanging decorative panels
+            ctx.fillStyle = '#FFD700'; // Gold
+            for (let i = 0; i < 5; i++) {
+                const x = 100 + i * 140;
+                ctx.beginPath();
+                ctx.moveTo(x, 50);
+                ctx.lineTo(x + 20, 100);
+                ctx.lineTo(x - 20, 100);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Bright lights or bulbs
+            ctx.fillStyle = '#FF0000'; // Red lights
+            for (let i = 0; i < 10; i++) {
+                const x = Math.random() * canvas.width;
+                const y = 60 + Math.random() * 20;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            ducks.forEach(duck => {
+                duck.update();
+                duck.draw();
+            });
+        }
+
+        function gameLoop() {
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (ammo <= 0) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ammo--;
+            document.getElementById('ammo').textContent = ammo;
+            playShootSound();
+
+            for (let i = ducks.length - 1; i >= 0; i--) {
+                if (ducks[i].isHit(x, y)) {
+                    ducks.splice(i, 1);
+                    score++;
+                    document.getElementById('score').textContent = score;
+                }
+            }
+
+            if (ammo === 0 && ducks.length === 0) {
+                alert(`Game Over! Final Score: ${score}`);
+                location.reload();
+            }
+        });
+
+        spawnDucks();
+        gameLoop();
+    </script>
+</body>
+</html>
