@@ -16,6 +16,10 @@ export class GameHandler {
         this.grassHeight = 150;
         this.grassY = canvas.height - this.grassHeight;
 
+        // Load background image
+        this.backgroundImg = new Image();
+        this.backgroundImg.src = 'game/graphics/Background.png';
+
         this.setupEventListeners();
     }
 
@@ -79,6 +83,11 @@ export class GameHandler {
 
     update() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw background
+        if (this.backgroundImg.complete) {
+            this.ctx.drawImage(this.backgroundImg, 0, 0, this.canvas.width, this.canvas.height);
+        }
 
         this.spawnDuck();
 
