@@ -1,6 +1,7 @@
 import { Duck } from '../entities/duck.js';
 import { drawGun } from '../draw/gun.js';
 import { drawUI } from '../draw/ui.js';
+import { CloudManager } from '../draw/cloud.js';
 
 export class GameHandler {
     constructor(canvas, ctx) {
@@ -9,6 +10,7 @@ export class GameHandler {
         this.score = 0;
         this.frames = 0;
         this.ducks = [];
+        this.cloudManager = new CloudManager(canvas);
         this.mouseX = canvas.width / 2;
         this.mouseY = canvas.height / 2;
         this.isShooting = false;
@@ -42,6 +44,11 @@ export class GameHandler {
 
             this.isShooting = true;
             this.flashTimer = 20;
+
+            // Check if shot is absorbed by a cloud
+            if (this.cloudManager.isPointObscured(this.mouseX, this.mouseY, this.frames)) {
+                return;
+            }
 
             // Check for hits
             for (let i = this.ducks.length - 1; i >= 0; i--) {
@@ -102,6 +109,9 @@ export class GameHandler {
         }
 
         this.drawGrass();
+        
+        this.cloudManager.update(this.ctx, this.frames);
+
         // pass frames to drawGun to calculate sway based on time
         drawGun(this.ctx, this.canvas, this.mouseX, this.mouseY, this.flashTimer, this.frames);
         
