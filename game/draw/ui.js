@@ -1,5 +1,5 @@
 const crosshairImg = new Image();
-crosshairImg.src = 'game/graphics/untitled.png';
+crosshairImg.src = 'game/graphics/ui/crosshair.png';
 
 export function drawUI(ctx, score, mouseX, mouseY) {
     ctx.fillStyle = "white";

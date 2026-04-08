@@ -1,8 +1,8 @@
 const gunImgA = new Image();
-gunImgA.src = 'game/graphics/gun_1_a.png';
+gunImgA.src = 'game/graphics/gun/a.png';
 
 const gunImgB = new Image();
-gunImgB.src = 'game/graphics/gun_1_b.png';
+gunImgB.src = 'game/graphics/gun/b.png';
 
 export function drawGun(ctx, canvas, mouseX, mouseY, flashTimer, frames) {
     const centerX = canvas.width / 2;

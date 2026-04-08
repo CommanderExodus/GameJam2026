@@ -1,5 +1,5 @@
 const cloudImages = [
-    'game/graphics/clouds/Cloud1.png'
+    'game/graphics/clouds/1.png'
 ].map(src => {
     const img = new Image();
     img.src = src;
