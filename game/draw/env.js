@@ -1,10 +1,9 @@
 export class EnvHandler {
-    constructor(canvas, ctx) {
-        this.canvas = canvas;
-        this.ctx = ctx;
+    constructor(game) {
+        this.game = game;
         
         this.grassHeight = 30;
-        this.grassY = canvas.height - this.grassHeight;
+        this.grassY = game.canvas.height - this.grassHeight;
 
         this.backgroundImg = new Image();
         this.backgroundImg.src = 'game/graphics/env/background.png';
@@ -15,14 +14,14 @@ export class EnvHandler {
 
     drawBackground() {
         if (this.backgroundImg.complete) {
-            this.ctx.drawImage(this.backgroundImg, 0, 0, this.canvas.width, this.canvas.height);
+            this.game.ctx.drawImage(this.backgroundImg, 0, 0, this.game.canvas.width, this.game.canvas.height);
         }
     }
 
     drawGrass() {
         if (this.grassImg.complete) {
-            this.ctx.imageSmoothingEnabled = false;
-            this.ctx.drawImage(this.grassImg, 0, this.grassY, this.canvas.width, this.grassHeight);
+            this.game.ctx.imageSmoothingEnabled = false;
+            this.game.ctx.drawImage(this.grassImg, 0, this.grassY, this.game.canvas.width, this.grassHeight);
         }
     }
 }

@@ -1,18 +1,18 @@
 const crosshairImg = new Image();
 crosshairImg.src = 'game/graphics/ui/crosshair.png';
 
-export function drawUI(ctx, score, mouseX, mouseY) {
-    ctx.fillStyle = "white";
-    ctx.font = "8px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText(`SCORE: ${score}`, 4, 10);
+export function drawUI(game) {
+    game.ctx.fillStyle = "white";
+    game.ctx.font = "8px monospace";
+    game.ctx.textAlign = "left";
+    game.ctx.fillText(`SCORE: ${game.score}`, 4, 10);
 
-    ctx.imageSmoothingEnabled = false;
+    game.ctx.imageSmoothingEnabled = false;
 
     if (crosshairImg.complete) {
         const scale = 1;
         const w = crosshairImg.width * scale;
         const h = crosshairImg.height * scale;
-        ctx.drawImage(crosshairImg, mouseX - w / 2, mouseY - h / 2, w, h);
+        game.ctx.drawImage(crosshairImg, game.mouseX - w / 2, game.mouseY - h / 2, w, h);
     }
 }

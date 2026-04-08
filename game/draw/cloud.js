@@ -56,24 +56,24 @@ export class Cloud {
 }
 
 export class CloudManager {
-    constructor(canvas) {
-        this.canvas = canvas;
+    constructor(game) {
+        this.game = game;
         this.clouds = [];
     }
 
-    spawnCloud(frames) {
+    spawnCloud() {
         if (Math.random() < 0.005) {
-            this.clouds.push(new Cloud(this.canvas, frames));
+            this.clouds.push(new Cloud(this.game.canvas, this.game.frames));
         }
     }
 
-    update(ctx, frames) {
-        this.spawnCloud(frames);
+    update() {
+        this.spawnCloud();
 
         for (let i = this.clouds.length - 1; i >= 0; i--) {
             let c = this.clouds[i];
             c.update();
-            c.draw(ctx, frames);
+            c.draw(this.game.ctx, this.game.frames);
 
             if (c.isOffscreen()) {
                 this.clouds.splice(i, 1);
