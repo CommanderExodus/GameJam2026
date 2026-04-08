@@ -17,20 +17,23 @@ export function drawGun(ctx, canvas, mouseX, mouseY, flashTimer) {
     ctx.translate(centerX + swayX, canvas.height + swayY);
 
     const gunImg = flashTimer > 0 ? gunImgB : gunImgA;
+    const scale = 3.5; // adjust scale as needed
 
+    // Disable anti-aliasing for crisp pixel art scaling
+    ctx.imageSmoothingEnabled = false;
+
+    let height = 0;
     if (gunImg.complete) {
         // Draw the gun image centered horizontally and anchored at the bottom
-        // Scaling up a bit in case it's a small sprite
-        const scale = 2; // adjust scale as needed
         const width = gunImg.width * scale;
-        const height = gunImg.height * scale;
+        height = gunImg.height * scale;
         ctx.drawImage(gunImg, -width / 2, -height, width, height);
     }
 
     // Muzzle Flash
     if (flashTimer > 0) {
-        // adjust Y offset for the muzzle flash based on the image size if necessary
-        const flashY = gunImg.complete ? -gunImg.height * 2 : -190;
+        // adjust Y offset for the muzzle flash to be exactly at the tip of the scaled gun
+        const flashY = gunImg.complete ? -height : -190;
         
         ctx.fillStyle = "rgba(255, 165, 0, 0.8)"; // Orange flash
         ctx.beginPath();
