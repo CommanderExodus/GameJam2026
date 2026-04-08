@@ -1,5 +1,5 @@
 const crosshairImg = new Image();
-crosshairImg.src = 'game/graphics/Crosshair.png';
+crosshairImg.src = 'game/graphics/untitled.png';
 
 export function drawUI(ctx, score, mouseX, mouseY) {
     ctx.fillStyle = "white";
@@ -10,7 +10,7 @@ export function drawUI(ctx, score, mouseX, mouseY) {
     ctx.imageSmoothingEnabled = false;
 
     if (crosshairImg.complete) {
-        const scale = 0.5;
+        const scale = 1;
         const w = crosshairImg.width * scale;
         const h = crosshairImg.height * scale;
         ctx.drawImage(crosshairImg, mouseX - w / 2, mouseY - h / 2, w, h);
