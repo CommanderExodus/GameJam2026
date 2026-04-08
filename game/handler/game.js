@@ -34,7 +34,7 @@ export class GameHandler {
             if (e.button !== 0) return;
 
             this.isShooting = true;
-            this.flashTimer = 5;
+            this.flashTimer = 20;
 
             // Check for hits
             for (let i = this.ducks.length - 1; i >= 0; i--) {

@@ -1,3 +1,9 @@
+const gunImgA = new Image();
+gunImgA.src = 'game/graphics/gun_1_a.png';
+
+const gunImgB = new Image();
+gunImgB.src = 'game/graphics/gun_1_b.png';
+
 export function drawGun(ctx, canvas, mouseX, mouseY, flashTimer) {
     const centerX = canvas.width / 2;
 
@@ -10,35 +16,30 @@ export function drawGun(ctx, canvas, mouseX, mouseY, flashTimer) {
     // Anchor the gun at the bottom center, applying the sway
     ctx.translate(centerX + swayX, canvas.height + swayY);
 
-    // Draw Hand holding the gun
-    ctx.fillStyle = "#d2b48c"; // Tan/Skin color
-    ctx.fillRect(-25, -60, 50, 60);
-    ctx.fillStyle = "#c8a47e"; // Shadow
-    ctx.fillRect(-25, -60, 15, 60);
+    const gunImg = flashTimer > 0 ? gunImgB : gunImgA;
 
-    // Draw Gun Body
-    ctx.fillStyle = "#333";
-    ctx.beginPath();
-    ctx.moveTo(-15, -40);
-    ctx.lineTo(15, -40);
-    ctx.lineTo(10, -180); // Barrel end
-    ctx.lineTo(-10, -180);
-    ctx.fill();
-
-    // Gun details
-    ctx.fillStyle = "#111";
-    ctx.fillRect(-5, -170, 10, 120);
+    if (gunImg.complete) {
+        // Draw the gun image centered horizontally and anchored at the bottom
+        // Scaling up a bit in case it's a small sprite
+        const scale = 2; // adjust scale as needed
+        const width = gunImg.width * scale;
+        const height = gunImg.height * scale;
+        ctx.drawImage(gunImg, -width / 2, -height, width, height);
+    }
 
     // Muzzle Flash
     if (flashTimer > 0) {
+        // adjust Y offset for the muzzle flash based on the image size if necessary
+        const flashY = gunImg.complete ? -gunImg.height * 2 : -190;
+        
         ctx.fillStyle = "rgba(255, 165, 0, 0.8)"; // Orange flash
         ctx.beginPath();
-        ctx.arc(0, -190, Math.random() * 20 + 20, 0, Math.PI * 2);
+        ctx.arc(0, flashY, Math.random() * 20 + 20, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = "rgba(255, 255, 0, 0.9)"; // Yellow inner flash
         ctx.beginPath();
-        ctx.arc(0, -190, Math.random() * 10 + 10, 0, Math.PI * 2);
+        ctx.arc(0, flashY, Math.random() * 10 + 10, 0, Math.PI * 2);
         ctx.fill();
     }
 
