@@ -20,11 +20,23 @@ export class GameHandler {
         this.mouseY = canvas.height / 2;
         this.isShooting = false;
         this.flashTimer = 0;
+        this.timerSeconds = 120;
+        this.lastUpdateTime = performance.now();
 
         setupEventListeners(this);
     }
 
     update() {
+        const now = performance.now();
+        const deltaSeconds = (now - this.lastUpdateTime) / 1000;
+        this.lastUpdateTime = now;
+
+        this.timerSeconds -= deltaSeconds;
+        if (this.timerSeconds <= 0) {
+            this.score = 0;
+            this.timerSeconds = 120;
+        }
+
         this.ctx.imageSmoothingEnabled = false;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
