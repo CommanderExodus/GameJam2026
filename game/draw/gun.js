@@ -4,6 +4,13 @@ gunImgA.src = 'game/graphics/gun/a.png';
 const gunImgB = new Image();
 gunImgB.src = 'game/graphics/gun/b.png';
 
+const muzzleImages = [];
+for (let i = 1; i <= 6; i++) {
+    const img = new Image();
+    img.src = `game/graphics/gun/muzzle_${i}.png`;
+    muzzleImages.push(img);
+}
+
 export function drawGun(game) {
     const centerX = game.canvas.width / 2;
 
@@ -19,25 +26,30 @@ export function drawGun(game) {
     const scale = 0.8 + Math.sin(game.frames * 0.04) * 0.05; 
     game.ctx.imageSmoothingEnabled = false;
 
+    let width = 0;
     let height = 0;
     if (gunImg.complete) {
-        const width = gunImg.width * scale;
+        width = gunImg.width * scale;
         height = gunImg.height * scale;
-        game.ctx.drawImage(gunImg, -width / 2, -height, width, height);
     }
 
     if (game.flashTimer > 0) {
         const flashY = gunImg.complete ? -height : -15;
         
-        game.ctx.fillStyle = "rgba(255, 165, 0, 0.8)";
-        game.ctx.beginPath();
-        game.ctx.arc(0, flashY, Math.random() * 2 + 2, 0, Math.PI * 2);
-        game.ctx.fill();
+        const maxFrames = 20;
+        let index = Math.floor(((maxFrames - game.flashTimer) / maxFrames) * muzzleImages.length);
+        index = Math.max(0, Math.min(muzzleImages.length - 1, index));
+        
+        const muzzImg = muzzleImages[index];
+        if (muzzImg.complete) {
+            const muzzWidth = muzzImg.width * scale * 0.5;
+            const h = muzzImg.height * scale * 0.5;
+            game.ctx.drawImage(muzzImg, -muzzWidth / 2, flashY - h / 2, muzzWidth, h);
+        }
+    }
 
-        game.ctx.fillStyle = "rgba(255, 255, 0, 0.9)";
-        game.ctx.beginPath();
-        game.ctx.arc(0, flashY, Math.random() * 1 + 1, 0, Math.PI * 2);
-        game.ctx.fill();
+    if (gunImg.complete) {
+        game.ctx.drawImage(gunImg, -width / 2, -height, width, height);
     }
 
     game.ctx.restore();
