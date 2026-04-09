@@ -5,9 +5,6 @@
 
 **Ein Retro-Shooting-Gallery-Spiel, entstanden im Rahmen des GameJams 2026 der HHU!**
 
-## Spielname
-Bug Hunt
-
 ## Genre
 Shooting Gallery Game
 
@@ -39,7 +36,7 @@ Da BugHunt direkt im Browser läuft, kann man das Repo auch kopieren und einfach
 
 
 ## Authors
-
+**Gruppe:** Newcomer
 * **[@CommanderExodus](https://github.com/CommanderExodus)**
 * **[@PatrickBrts](https://github.com/PatrickBrts)**
 * **[@therapy](https://github.com/therapy)**
