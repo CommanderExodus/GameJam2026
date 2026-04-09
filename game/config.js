@@ -102,10 +102,18 @@ export const CONFIG = {
     },
 
     highScore: {
-        fontSize: 6,
+        fontSize: 8,
         paddingRight: 4,
-        paddingBottom: 5,
+        paddingTop: 12,
         shadowOffset: 1,
+    },
+
+    logo: {
+        width: 100,
+        xOffset: -5,
+        yOffset: -5,
+        bobFrequency: 0.05,
+        bobAmplitude: 1,
     },
 
     assets: {
@@ -131,6 +139,7 @@ export const CONFIG = {
             crosshair: 'game/graphics/ui/crosshair.png',
             startButton: 'game/graphics/ui/start.png',
             menuButton: 'game/graphics/ui/menu.png',
+            logo: 'game/graphics/ui/logo.png',
         },
     },
 };

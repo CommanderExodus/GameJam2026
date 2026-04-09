@@ -11,6 +11,7 @@ export class StartMenu {
         this.grassImg = loadImage(CONFIG.assets.env.grass);
         this.startButtonImg = loadImage(CONFIG.assets.ui.startButton);
         this.crosshairImg = loadImage(CONFIG.assets.ui.crosshair);
+        this.logoImg = loadImage(CONFIG.assets.ui.logo);
 
         this.buttonBounds = {
             x: (game.canvas.width - CONFIG.button.width) / 2,
@@ -21,7 +22,7 @@ export class StartMenu {
 
         this.isLoaded = false;
         onAllLoaded(
-            [this.backgroundImg, this.grassImg, this.startButtonImg, this.crosshairImg],
+            [this.backgroundImg, this.grassImg, this.startButtonImg, this.crosshairImg, this.logoImg],
             () => { this.isLoaded = true; }
         );
 
@@ -45,6 +46,15 @@ export class StartMenu {
 
         this.game.cloudManager.update();
 
+        if (this.logoImg.complete) {
+            const logoWidth = CONFIG.logo.width;
+            const logoHeight = (this.logoImg.height / this.logoImg.width) * logoWidth;
+            const logoX = (this.game.canvas.width - logoWidth) / 2 + CONFIG.logo.xOffset;
+            const logoBaseY = (this.game.canvas.height - logoHeight) / 2 + CONFIG.logo.yOffset;
+            const logoBobY = logoBaseY + Math.sin(this.frames * CONFIG.logo.bobFrequency) * CONFIG.logo.bobAmplitude;
+            this.game.ctx.drawImage(this.logoImg, logoX, logoBobY, logoWidth, logoHeight);
+        }
+
         drawHoverButton(
             this.game.ctx, this.startButtonImg, this.buttonBounds,
             this.game.mouseX, this.game.mouseY, this.frames
@@ -54,7 +64,7 @@ export class StartMenu {
             this.game.ctx,
             `BEST:${this.game.highScore}`,
             this.game.canvas.width - CONFIG.highScore.paddingRight,
-            this.game.canvas.height - CONFIG.highScore.paddingBottom,
+            CONFIG.highScore.paddingTop,
             { align: 'right', font: `${CONFIG.highScore.fontSize}px ${CONFIG.ui.fontFamily}` }
         );
 
@@ -72,6 +82,7 @@ export class StartMenu {
         if (this.game.isGameRunning) return;
 
         if (isInsideBounds(this.game.mouseX, this.game.mouseY, this.buttonBounds)) {
+            event.stopImmediatePropagation();
             this.game.canvas.removeEventListener('mousedown', this.handleMouseDown);
             this.game.startActualGame();
         }
