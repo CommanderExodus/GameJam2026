@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { drawOutlinedText } from '../utils/textRenderer.js';
 import { BugManager } from '../entities/bug.js';
 import { drawGun } from '../draw/gun.js';
 import { drawUI } from '../draw/ui.js';
@@ -50,7 +51,6 @@ export class GameHandler {
         this.isGameOver = false;
         this.isGameRunning = false;
         this.score = 0;
-        this.frames = 0;
         this.timerSeconds = CONFIG.gameplay.timerDuration;
         this.bugManager.bugs = [];
         this.startMenu = new StartMenu(this);
@@ -65,6 +65,8 @@ export class GameHandler {
         const now = performance.now();
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
+        
+        this.frames++;
 
         if (this.isGameRunning && !this.isGameOver) {
             this.timerSeconds -= deltaSeconds;
@@ -115,7 +117,6 @@ export class GameHandler {
         }
 
         drawUI(this);
-        this.frames++;
     }
 
     drawGameOver() {
@@ -134,22 +135,25 @@ export class GameHandler {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.gameOverTimer > fadeDuration + waitDuration) {
-            this.ctx.font = `${CONFIG.ui.gameOverFontSize}px ${CONFIG.ui.fontFamily}`;
-            this.ctx.textAlign = 'center';
-            this.ctx.fillStyle = 'white';
+            const gameOverFont = `${CONFIG.ui.gameOverFontSize}px ${CONFIG.ui.fontFamily}`;
 
-            this.ctx.fillText('SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY);
-            this.ctx.fillText(`${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2);
+            drawOutlinedText(this.ctx, 'SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY, {
+                align: 'center', font: gameOverFont,
+            });
+            drawOutlinedText(this.ctx, `${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2, {
+                align: 'center', font: gameOverFont,
+            });
 
-            this.ctx.fillText('BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY);
-            this.ctx.fillText(`${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2);
+            drawOutlinedText(this.ctx, 'BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY, {
+                align: 'center', font: gameOverFont,
+            });
+            drawOutlinedText(this.ctx, `${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2, {
+                align: 'center', font: gameOverFont,
+            });
 
             drawHoverButton(this.ctx, this.menuButtonImg, this.backButtonBounds, this.mouseX, this.mouseY, this.frames);
-
-            this.ctx.textAlign = 'left';
         }
 
         drawUI(this, true);
-        this.frames++;
     }
 }

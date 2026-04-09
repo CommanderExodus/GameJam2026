@@ -9,14 +9,30 @@ const muzzleImages = loadImageSequence(CONFIG.assets.gun.muzzlePrefix, CONFIG.gu
 export function drawGun(game) {
     const centerX = game.canvas.width / 2;
 
+    const isShooting = game.flashTimer > 0;
+
+    if (!game.gunState) {
+        game.gunState = {
+            frames: game.frames,
+            mouseX: game.mouseX,
+            mouseY: game.mouseY
+        };
+    }
+
+    if (!isShooting) {
+        game.gunState.frames++;
+        game.gunState.mouseX = game.mouseX;
+        game.gunState.mouseY = game.mouseY;
+    }
+
     const mouseSway = Bobbing.getMouseSway(
-        game.mouseX, game.mouseY,
+        game.gunState.mouseX, game.gunState.mouseY,
         game.canvas.width, game.canvas.height,
         CONFIG.gun.mouseSwayFactor
     );
 
     const breathing = Bobbing.getBreathing(
-        game.frames,
+        game.gunState.frames,
         CONFIG.gun.breathingFreqX, CONFIG.gun.breathingAmpX,
         CONFIG.gun.breathingFreqY, CONFIG.gun.breathingAmpY
     );
@@ -27,8 +43,8 @@ export function drawGun(game) {
         game.canvas.height + mouseSway.y + breathing.y
     );
 
-    const gunImg = game.flashTimer > 0 ? gunFiring : gunIdle;
-    const scale = Bobbing.getScale(game.frames, CONFIG.gun.defaultScale, CONFIG.gun.scaleFrequency, CONFIG.gun.scaleAmplitude);
+    const gunImg = isShooting ? gunFiring : gunIdle;
+    const scale = Bobbing.getScale(game.gunState.frames, CONFIG.gun.defaultScale, CONFIG.gun.scaleFrequency, CONFIG.gun.scaleAmplitude);
 
     let width = 0;
     let height = 0;

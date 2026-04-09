@@ -52,13 +52,21 @@ export const CONFIG = {
         maxYFraction: 1 / 3,
     },
 
+    sun: {
+        x: 15,
+        y: 15,
+        bobFrequency: 0.06,
+        bobAmplitude: 1,
+    },
+
+
     gun: {
         defaultScale: 0.8,
         scaleFrequency: 0.04,
         scaleAmplitude: 0.05,
         mouseSwayFactor: 0.05,
         breathingFreqX: 0.05,
-        breathingAmpX: 2,
+        breathingAmpX: 1,
         breathingFreqY: 0.025,
         breathingAmpY: 1,
         muzzleScale: 0.5,
@@ -68,8 +76,8 @@ export const CONFIG = {
 
     ui: {
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: 6,
-        gameOverFontSize: 8,
+        fontSize: 7,
+        gameOverFontSize: 7,
         crosshairScale: 1,
         scoreX: 4,
         scoreY: 10,
@@ -102,7 +110,7 @@ export const CONFIG = {
     },
 
     highScore: {
-        fontSize: 8,
+        fontSize: 7,
         paddingRight: 4,
         paddingTop: 12,
         shadowOffset: 1,
@@ -134,6 +142,7 @@ export const CONFIG = {
         env: {
             background: 'game/graphics/env/background.png',
             grass: 'game/graphics/env/grass.png',
+            sun: 'game/graphics/env/sun.png',
         },
         ui: {
             crosshair: 'game/graphics/ui/crosshair.png',
