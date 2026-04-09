@@ -1,9 +1,9 @@
 // bugs in disguise
 const bugImages = [
+    'game/graphics/bugs/302.png',
     'game/graphics/bugs/404.png',
     'game/graphics/bugs/500.png',
-    'game/graphics/bugs/gelb.png',
-    'game/graphics/bugs/red.png'
+    'game/graphics/bugs/gelb.png'
 ].map(src => {
     const img = new Image();
     img.src = src;
