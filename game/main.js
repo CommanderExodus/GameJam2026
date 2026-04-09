@@ -10,4 +10,5 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// The game loop starts immediately, but GameHandler will manage the start screen.
 gameLoop();

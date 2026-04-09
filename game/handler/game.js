@@ -4,6 +4,7 @@ import { drawUI } from '../draw/ui.js';
 import { CloudManager } from '../draw/cloud.js';
 import { EnvHandler } from '../draw/env.js';
 import { setupEventListeners } from './mouse.js';
+import { StartMenu } from '../start_menu.js';
 
 export class GameHandler {
     constructor(canvas, ctx) {
@@ -26,7 +27,14 @@ export class GameHandler {
         this.isGameOver = false;
         this.gameOverTimer = 0;
 
+        this.isGameRunning = false;
+        this.startMenu = new StartMenu(this);
+
         setupEventListeners(this);
+    }
+
+    startActualGame() {
+        this.isGameRunning = true;
     }
 
     update() {
@@ -80,6 +88,11 @@ export class GameHandler {
             drawUI(this, true);
             
             this.frames++;
+            return;
+        }
+
+        if (!this.isGameRunning) {
+            this.startMenu.draw();
             return;
         }
 
