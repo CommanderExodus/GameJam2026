@@ -70,7 +70,7 @@ export class GameHandler {
         const now = performance.now();
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
-        
+
         this.frames++;
 
         if (this.isGameRunning && !this.isGameOver) {
