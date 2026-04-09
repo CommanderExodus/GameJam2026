@@ -11,7 +11,7 @@ export function drawHoverButton(ctx, image, bounds, mouseX, mouseY, frames) {
 
     if (hovered) {
         drawY += CONFIG.button.hoverOffset;
-        ctx.filter = CONFIG.button.hoverBrightness;
+        ctx.filter = CONFIG.button.hoverFilter;
     }
 
     if (image.complete) {

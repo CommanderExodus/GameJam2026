@@ -7,11 +7,17 @@ export const CONFIG = {
     },
 
     gameplay: {
-        timerDuration: 20,
-        flashDuration: 20,
+        timerDuration: 120,
         startFadeDuration: 60,
         startWaitDuration: 120,
         targetFps: 60,
+    },
+
+    death: {
+        fallSpeed: 1.2,
+        freezeFrames: 15,
+        blinkInterval: 12,
+        blinkThreshold: 10,
     },
 
     bug: {
@@ -23,10 +29,6 @@ export const CONFIG = {
         launchSpeedRange: 1.5,
         horizontalSpeedRange: 1.5,
         gravity: 0.05,
-        deathFallSpeed: 1.2,
-        deathFreezeFrames: 15,
-        deathBlinkInterval: 12,
-        deathBlinkThreshold: 10,
         spawnYOffset: 2,
         edgePadding: 4,
         hitboxPadding: 8,
@@ -38,7 +40,10 @@ export const CONFIG = {
         speed: 0.5,
         amplitudeX: 15,
         amplitudeY: 10,
-        frequency: 0.015
+        frequency: 0.015,
+        driftSpeed: 0.5,
+        animationSpeed: 10,
+        scoreValue: 5,
     },
 
     cloud: {
@@ -62,13 +67,15 @@ export const CONFIG = {
         maxYFraction: 1 / 3,
     },
 
-    sun: {
-        x: 15,
-        y: 15,
-        bobFrequency: 0.06,
-        bobAmplitude: 1,
+    env: {
+        grassHeight: 30,
+        sun: {
+            x: 15,
+            y: 15,
+            bobFrequency: 0.06,
+            bobAmplitude: 1,
+        },
     },
-
 
     gun: {
         defaultScale: 0.8,
@@ -82,12 +89,12 @@ export const CONFIG = {
         muzzleScale: 0.5,
         muzzleFrameCount: 6,
         fallbackFlashY: -15,
+        flashFrames: 20,
     },
 
     ui: {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: 7,
-        gameOverFontSize: 7,
         crosshairScale: 1,
         scoreX: 4,
         scoreY: 10,
@@ -107,25 +114,27 @@ export const CONFIG = {
         bobFrequency: 0.05,
         bobAmplitude: 1,
         hoverOffset: 2,
-        hoverBrightness: 'brightness(80%)',
+        hoverFilter: 'brightness(80%)',
     },
 
     gameOver: {
         fadeDuration: 60,
         waitDuration: 60,
-        menuButtonYOffset: 15,
+        menuButtonYOffset: 25,
         scoreLeftX: 0.3,
         scoreRightX: 0.7,
+        trophyTiers: [
+            { threshold: 100, key: 'bronze' },
+            { threshold: 130, key: 'silver' },
+            { threshold: 160, key: 'gold' },
+        ],
         scoreY: 75,
-        scoreLabelY: -15,
+        scoreLabelOffsetY: -15,
         trophyY: 5,
         trophySpacing: 10,
-        trophyScale: 1,
-        menuButtonYOffset: 25,
     },
 
     highScore: {
-        fontSize: 7,
         paddingRight: 4,
         paddingTop: 12,
         shadowOffset: 1,

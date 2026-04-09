@@ -1,49 +1,44 @@
 import { CONFIG } from '../config.js';
 import { loadImages } from '../utils/imageLoader.js';
 import { isInsideBounds } from '../utils/buttonRenderer.js';
+import { shouldHideDuringBlink, isDeathFrozen } from '../utils/deathAnimation.js';
 
 const butterflyImages = loadImages(CONFIG.assets.butterfly);
 
 export class Butterfly {
     constructor(canvas) {
         this.size = CONFIG.butterfly.size;
-
         this.amplitudeX = CONFIG.butterfly.amplitudeX;
         this.amplitudeY = CONFIG.butterfly.amplitudeY;
         this.frequency = CONFIG.butterfly.frequency;
         this.time = 0;
-        this.images = butterflyImages;
         this.frame = 0;
-        this.animationSpeed = 10;
 
-        // Choose a random edge to spawn on
-        const edge = Math.floor(Math.random() * 4); // 0: left, 1: right, 2: top, 3: bottom
-        if (edge === 0) { // left
+        const edge = Math.floor(Math.random() * 4);
+        if (edge === 0) {
             this.centerX = -this.size;
             this.centerY = Math.random() * canvas.height;
             this.targetX = canvas.width + this.size;
             this.targetY = Math.random() * canvas.height;
-        } else if (edge === 1) { // right
+        } else if (edge === 1) {
             this.centerX = canvas.width + this.size;
             this.centerY = Math.random() * canvas.height;
             this.targetX = -this.size;
             this.targetY = Math.random() * canvas.height;
-        } else if (edge === 2) { // top
+        } else if (edge === 2) {
             this.centerX = Math.random() * canvas.width;
             this.centerY = -this.size;
             this.targetX = Math.random() * canvas.width;
             this.targetY = canvas.height + this.size;
-        } else { // bottom
+        } else {
             this.centerX = Math.random() * canvas.width;
             this.centerY = canvas.height + this.size;
             this.targetX = Math.random() * canvas.width;
             this.targetY = -this.size;
         }
-        
+
         this.x = this.centerX;
         this.y = this.centerY;
-        
-        this.driftSpeed = 0.5; // how fast it drifts towards target
 
         this.isDead = false;
         this.deathTimer = 0;
@@ -53,19 +48,18 @@ export class Butterfly {
     update() {
         if (this.isDead) {
             this.deathTimer++;
-            if (this.deathTimer >= CONFIG.bug.deathFreezeFrames) {
+            if (!isDeathFrozen(this.deathTimer)) {
                 this.y += this.vy;
             }
             return;
         }
 
-        // normal movement
         const dx = this.targetX - this.centerX;
         const dy = this.targetY - this.centerY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > 1) {
-            this.centerX += (dx / dist) * this.driftSpeed;
-            this.centerY += (dy / dist) * this.driftSpeed;
+            this.centerX += (dx / dist) * CONFIG.butterfly.driftSpeed;
+            this.centerY += (dy / dist) * CONFIG.butterfly.driftSpeed;
         }
 
         this.time += this.frequency;
@@ -75,12 +69,9 @@ export class Butterfly {
     }
 
     draw(ctx) {
-        const currentImg = this.images[Math.floor(this.frame / this.animationSpeed) % this.images.length];
+        const currentImg = butterflyImages[Math.floor(this.frame / CONFIG.butterfly.animationSpeed) % butterflyImages.length];
         if (!currentImg.complete) return;
-
-        if (this.isDead && this.deathTimer >= CONFIG.bug.deathBlinkThreshold) {
-            if (Math.floor(this.deathTimer / CONFIG.bug.deathBlinkInterval) % 2 === 0) return;
-        }
+        if (this.isDead && shouldHideDuringBlink(this.deathTimer)) return;
 
         ctx.save();
         ctx.translate(this.x, this.y);
@@ -92,6 +83,12 @@ export class Butterfly {
     isOffScreen(canvas) {
         return this.x < -this.size * 2 || this.x > canvas.width + this.size * 2 ||
                this.y < -this.size * 2 || this.y > canvas.height + this.size * 2;
+    }
+
+    kill() {
+        this.isDead = true;
+        this.deathTimer = 0;
+        this.vy = CONFIG.death.fallSpeed;
     }
 
     checkHit(mouseX, mouseY) {

@@ -9,7 +9,7 @@ import { EnvHandler } from '../draw/env.js';
 import { setupEventListeners } from './mouse.js';
 import { StartMenu } from './start_menu.js';
 import { loadImage } from '../utils/imageLoader.js';
-import { drawHoverButton, isInsideBounds } from '../utils/buttonRenderer.js';
+import { drawHoverButton } from '../utils/buttonRenderer.js';
 
 export class GameHandler {
     constructor(canvas, ctx) {
@@ -46,10 +46,12 @@ export class GameHandler {
         };
 
         this.menuButtonImg = loadImage(CONFIG.assets.ui.menuButton);
-        this.trophyBronze = loadImage(CONFIG.assets.trophy.bronze);
-        this.trophySilver = loadImage(CONFIG.assets.trophy.silver);
-        this.trophyGold = loadImage(CONFIG.assets.trophy.gold);
-        this.trophyOutline = loadImage(CONFIG.assets.trophy.outline);
+        this.trophyImages = {
+            bronze: loadImage(CONFIG.assets.trophy.bronze),
+            silver: loadImage(CONFIG.assets.trophy.silver),
+            gold: loadImage(CONFIG.assets.trophy.gold),
+            outline: loadImage(CONFIG.assets.trophy.outline),
+        };
 
         setupEventListeners(this);
     }
@@ -78,31 +80,7 @@ export class GameHandler {
         this.frames++;
 
         if (this.isGameRunning && !this.isGameOver) {
-            if (this.startWaitTimer > 0) {
-                this.startWaitTimer--;
-            } else {
-                this.timerSeconds -= deltaSeconds;
-                if (this.timerSeconds <= 0) {
-                    this.timerSeconds = 0;
-                    this.isGameOver = true;
-                    this.gameOverTimer = 0;
-                    if (this.score > this.highScore) {
-                        this.highScore = this.score;
-                        localStorage.setItem('highScore', this.highScore);
-                    }
-                }
-            }
-
-            if (!this.butterfly && this.frames % CONFIG.butterfly.spawnRate === 0) {
-                this.butterfly = new Butterfly(this.canvas);
-            }
-
-            if (this.butterfly) {
-                this.butterfly.update();
-                if (this.butterfly.isOffScreen(this.canvas)) {
-                    this.butterfly = null;
-                }
-            }
+            this.updateGameplay(deltaSeconds);
         }
 
         this.ctx.imageSmoothingEnabled = false;
@@ -121,11 +99,40 @@ export class GameHandler {
         this.drawGameplay();
     }
 
-    drawGameplay() {
-        this.envHandler.drawBackground();
-        if (this.startWaitTimer <= 0) {
-            this.bugManager.spawn();
+    updateGameplay(deltaSeconds) {
+        if (this.startWaitTimer > 0) {
+            this.startWaitTimer--;
+        } else {
+            this.timerSeconds -= deltaSeconds;
+            if (this.timerSeconds <= 0) {
+                this.timerSeconds = 0;
+                this.isGameOver = true;
+                this.gameOverTimer = 0;
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('highScore', this.highScore);
+                }
+            }
         }
+
+        this.updateButterfly();
+    }
+
+    updateButterfly() {
+        if (!this.butterfly && this.frames % CONFIG.butterfly.spawnRate === 0) {
+            this.butterfly = new Butterfly(this.canvas);
+        }
+
+        if (this.butterfly) {
+            this.butterfly.update();
+            if (this.butterfly.isOffScreen(this.canvas)) {
+                this.butterfly = null;
+            }
+        }
+    }
+
+    drawScene() {
+        this.envHandler.drawBackground();
         this.bugManager.updateAndDraw();
         if (this.butterfly) {
             this.butterfly.draw(this.ctx);
@@ -133,6 +140,14 @@ export class GameHandler {
         this.envHandler.drawGrass();
         this.cloudManager.update();
         drawGun(this);
+    }
+
+    drawGameplay() {
+        if (this.startWaitTimer <= 0) {
+            this.bugManager.spawn();
+        }
+
+        this.drawScene();
 
         if (this.flashTimer > 0) {
             this.flashTimer--;
@@ -140,7 +155,7 @@ export class GameHandler {
 
         if (this.startFadeTimer > 0) {
             let alpha = this.startFadeTimer / CONFIG.gameplay.startFadeDuration;
-            alpha = Math.round(alpha * 4) / 4; // 5 stages
+            alpha = Math.round(alpha * 4) / 4;
             this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.startFadeTimer--;
@@ -152,77 +167,65 @@ export class GameHandler {
     drawGameOver() {
         this.gameOverTimer++;
 
-        this.envHandler.drawBackground();
-        this.bugManager.updateAndDraw();
-        if (this.butterfly) {
-            this.butterfly.update();
-            this.butterfly.draw(this.ctx);
-            if (this.butterfly.isOffScreen(this.canvas)) {
-                this.butterfly = null;
-            }
-        }
-        this.envHandler.drawGrass();
-        this.cloudManager.update();
-        drawGun(this);
+        this.updateButterfly();
+        this.drawScene();
 
         const { fadeDuration, waitDuration } = CONFIG.gameOver;
 
         let alpha = Math.min(1, this.gameOverTimer / fadeDuration);
-        alpha = Math.round(alpha * 4) / 4; // 5 stages
+        alpha = Math.round(alpha * 4) / 4;
         this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.gameOverTimer > fadeDuration + waitDuration) {
-            const gameOverFont = `${CONFIG.ui.gameOverFontSize}px ${CONFIG.ui.fontFamily}`;
-
-            drawOutlinedText(this.ctx, 'SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelY, {
-                align: 'center', font: gameOverFont,
-            });
-            drawOutlinedText(this.ctx, `${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY, {
-                align: 'center', font: gameOverFont,
-            });
-
-            drawOutlinedText(this.ctx, 'BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelY, {
-                align: 'center', font: gameOverFont,
-            });
-            drawOutlinedText(this.ctx, `${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY, {
-                align: 'center', font: gameOverFont,
-            });
-
-            const trophyItems = [
-                { threshold: 1, img: this.trophyBronze },
-                { threshold: 2, img: this.trophySilver },
-                { threshold: 3, img: this.trophyGold },
-            ];
-
-            const tScale = CONFIG.gameOver.trophyScale;
-            const tSpacing = CONFIG.gameOver.trophySpacing;
-            const tWidth = 30 * tScale;
-            const totalTrophyWidth = (tWidth * 3) + (tSpacing * 2);
-            let startX = (this.canvas.width - totalTrophyWidth) / 2;
-
-            trophyItems.forEach((t, i) => {
-                const isEarned = this.score > t.threshold;
-                const img = isEarned ? t.img : this.trophyOutline;
-                if (img.complete) {
-                    const w = img.width * tScale;
-                    const h = img.height * tScale;
-                    const x = startX + i * (w + tSpacing);
-                    const y = CONFIG.gameOver.trophyY;
-                    this.ctx.drawImage(img, x, y, w, h);
-
-                    if (!isEarned) {
-                        const fontSize = 7;
-                        drawOutlinedText(this.ctx, `${t.threshold}`, x + w / 2, y + h / 2 + 3, {
-                            align: 'center', font: `${fontSize}px ${CONFIG.ui.fontFamily}`
-                        });
-                    }
-                }
-            });
-
-            drawHoverButton(this.ctx, this.menuButtonImg, this.backButtonBounds, this.mouseX, this.mouseY, this.frames);
+            this.drawGameOverUI();
         }
 
         drawUI(this, true);
+    }
+
+    drawGameOverUI() {
+        const font = `${CONFIG.ui.fontSize}px ${CONFIG.ui.fontFamily}`;
+
+        drawOutlinedText(this.ctx, 'SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelOffsetY, {
+            align: 'center', font,
+        });
+        drawOutlinedText(this.ctx, `${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY, {
+            align: 'center', font,
+        });
+
+        drawOutlinedText(this.ctx, 'BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelOffsetY, {
+            align: 'center', font,
+        });
+        drawOutlinedText(this.ctx, `${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY, {
+            align: 'center', font,
+        });
+
+        this.drawTrophies(font);
+
+        drawHoverButton(this.ctx, this.menuButtonImg, this.backButtonBounds, this.mouseX, this.mouseY, this.frames);
+    }
+
+    drawTrophies(font) {
+        const { trophyTiers, trophySpacing, trophyY } = CONFIG.gameOver;
+        const outlineImg = this.trophyImages.outline;
+        const trophyWidth = outlineImg.complete ? outlineImg.width : 30;
+        const totalWidth = (trophyWidth * trophyTiers.length) + (trophySpacing * (trophyTiers.length - 1));
+        const startX = (this.canvas.width - totalWidth) / 2;
+
+        trophyTiers.forEach((tier, i) => {
+            const isEarned = this.score >= tier.threshold;
+            const img = isEarned ? this.trophyImages[tier.key] : outlineImg;
+            if (!img.complete) return;
+
+            const x = startX + i * (trophyWidth + trophySpacing);
+            this.ctx.drawImage(img, x, trophyY, img.width, img.height);
+
+            if (!isEarned) {
+                drawOutlinedText(this.ctx, `${tier.threshold}`, x + img.width / 2, trophyY + img.height / 2 - 7, {
+                    align: 'center', font,
+                });
+            }
+        });
     }
 }

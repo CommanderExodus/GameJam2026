@@ -23,19 +23,15 @@ export function setupEventListeners(game) {
         }
 
         game.isShooting = true;
-        game.flashTimer = CONFIG.gameplay.flashDuration;
-
-
+        game.flashTimer = CONFIG.gun.flashFrames;
 
         if (game.bugManager.checkHit(game.mouseX, game.mouseY)) {
             game.score++;
         }
 
         if (game.butterfly && !game.butterfly.isDead && game.butterfly.checkHit(game.mouseX, game.mouseY)) {
-            game.score += 5;
-            game.butterfly.isDead = true;
-            game.butterfly.deathTimer = 0;
-            game.butterfly.vy = CONFIG.bug.deathFallSpeed;
+            game.score += CONFIG.butterfly.scoreValue;
+            game.butterfly.kill();
         }
     });
 

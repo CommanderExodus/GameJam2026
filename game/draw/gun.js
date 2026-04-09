@@ -8,7 +8,6 @@ const muzzleImages = loadImageSequence(CONFIG.assets.gun.muzzlePrefix, CONFIG.gu
 
 export function drawGun(game) {
     const centerX = game.canvas.width / 2;
-
     const isShooting = game.flashTimer > 0;
 
     if (!game.gunState) {
@@ -55,9 +54,8 @@ export function drawGun(game) {
 
     if (game.flashTimer > 0) {
         const flashY = gunImg.complete ? -height : CONFIG.gun.fallbackFlashY;
-        const flashDuration = CONFIG.gameplay.flashDuration;
 
-        let frameIndex = Math.floor(((flashDuration - game.flashTimer) / flashDuration) * muzzleImages.length);
+        let frameIndex = Math.floor(((CONFIG.gun.flashFrames - game.flashTimer) / CONFIG.gun.flashFrames) * muzzleImages.length);
         frameIndex = Math.max(0, Math.min(muzzleImages.length - 1, frameIndex));
 
         const muzzleImg = muzzleImages[frameIndex];

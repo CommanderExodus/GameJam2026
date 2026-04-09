@@ -4,7 +4,7 @@ import { loadImage } from '../utils/imageLoader.js';
 export class EnvHandler {
     constructor(game) {
         this.game = game;
-        this.grassHeight = 30;
+        this.grassHeight = CONFIG.env.grassHeight;
         this.grassY = game.canvas.height - this.grassHeight;
         this.backgroundImg = loadImage(CONFIG.assets.env.background);
         this.grassImg = loadImage(CONFIG.assets.env.grass);
@@ -17,8 +17,8 @@ export class EnvHandler {
         }
 
         if (this.sunImg.complete) {
-            const bobY = Math.sin(this.game.frames * CONFIG.sun.bobFrequency) * CONFIG.sun.bobAmplitude;
-            this.game.ctx.drawImage(this.sunImg, CONFIG.sun.x, CONFIG.sun.y + bobY);
+            const bobY = Math.sin(this.game.frames * CONFIG.env.sun.bobFrequency) * CONFIG.env.sun.bobAmplitude;
+            this.game.ctx.drawImage(this.sunImg, CONFIG.env.sun.x, CONFIG.env.sun.y + bobY);
         }
     }
 

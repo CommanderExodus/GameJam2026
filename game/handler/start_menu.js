@@ -42,10 +42,10 @@ export class StartMenu {
 
         this.game.ctx.drawImage(this.backgroundImg, 0, 0, this.game.canvas.width, this.game.canvas.height);
 
-        const bobY = Math.sin(this.frames * CONFIG.sun.bobFrequency) * CONFIG.sun.bobAmplitude;
-        this.game.ctx.drawImage(this.sunImg, CONFIG.sun.x, CONFIG.sun.y + bobY);
+        const bobY = Math.sin(this.frames * CONFIG.env.sun.bobFrequency) * CONFIG.env.sun.bobAmplitude;
+        this.game.ctx.drawImage(this.sunImg, CONFIG.env.sun.x, CONFIG.env.sun.y + bobY);
 
-        const grassHeight = this.game.envHandler.grassHeight;
+        const grassHeight = CONFIG.env.grassHeight;
         this.game.ctx.drawImage(this.grassImg, 0, this.game.canvas.height - grassHeight, this.game.canvas.width, grassHeight);
 
         this.game.cloudManager.update();
@@ -69,7 +69,7 @@ export class StartMenu {
             `BEST:${this.game.highScore}`,
             this.game.canvas.width - CONFIG.highScore.paddingRight,
             CONFIG.highScore.paddingTop,
-            { align: 'right', font: `${CONFIG.highScore.fontSize}px ${CONFIG.ui.fontFamily}` }
+            { align: 'right', font: `${CONFIG.ui.fontSize}px ${CONFIG.ui.fontFamily}` }
         );
 
         if (this.crosshairImg.complete) {

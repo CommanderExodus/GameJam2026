@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { loadImages } from '../utils/imageLoader.js';
 import { isInsideBounds } from '../utils/buttonRenderer.js';
+import { shouldHideDuringBlink, isDeathFrozen } from '../utils/deathAnimation.js';
 
 const bugImages = loadImages(CONFIG.assets.bugs);
 
@@ -23,7 +24,7 @@ export class Bug {
     update() {
         if (this.isDead) {
             this.deathTimer++;
-            if (this.deathTimer < CONFIG.bug.deathFreezeFrames) return;
+            if (isDeathFrozen(this.deathTimer)) return;
         }
 
         this.vy += this.gravity;
@@ -33,16 +34,21 @@ export class Bug {
 
     draw(ctx) {
         if (!this.img.complete) return;
-
-        if (this.isDead && this.deathTimer >= CONFIG.bug.deathBlinkThreshold) {
-            if (Math.floor(this.deathTimer / CONFIG.bug.deathBlinkInterval) % 2 === 0) return;
-        }
+        if (this.isDead && shouldHideDuringBlink(this.deathTimer)) return;
 
         ctx.save();
         ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
         if (this.isDead) ctx.scale(1, -1);
         ctx.drawImage(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
         ctx.restore();
+    }
+
+    kill() {
+        this.isDead = true;
+        this.deathTimer = 0;
+        this.vy = CONFIG.death.fallSpeed;
+        this.vx = 0;
+        this.gravity = 0;
     }
 }
 
@@ -80,11 +86,7 @@ export class BugManager {
 
             const hitBounds = { x: bug.x, y: bug.y, width: bug.size, height: bug.size };
             if (isInsideBounds(mouseX, mouseY, hitBounds) && mouseY < this.game.envHandler.grassY) {
-                bug.isDead = true;
-                bug.deathTimer = 0;
-                bug.vy = CONFIG.bug.deathFallSpeed;
-                bug.vx = 0;
-                bug.gravity = 0;
+                bug.kill();
                 return true;
             }
         }
