@@ -46,6 +46,10 @@ export class GameHandler {
         };
 
         this.menuButtonImg = loadImage(CONFIG.assets.ui.menuButton);
+        this.trophyBronze = loadImage(CONFIG.assets.trophy.bronze);
+        this.trophySilver = loadImage(CONFIG.assets.trophy.silver);
+        this.trophyGold = loadImage(CONFIG.assets.trophy.gold);
+        this.trophyOutline = loadImage(CONFIG.assets.trophy.outline);
 
         setupEventListeners(this);
     }
@@ -171,18 +175,49 @@ export class GameHandler {
         if (this.gameOverTimer > fadeDuration + waitDuration) {
             const gameOverFont = `${CONFIG.ui.gameOverFontSize}px ${CONFIG.ui.fontFamily}`;
 
-            drawOutlinedText(this.ctx, 'SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY, {
+            drawOutlinedText(this.ctx, 'SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelY, {
                 align: 'center', font: gameOverFont,
             });
-            drawOutlinedText(this.ctx, `${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2, {
+            drawOutlinedText(this.ctx, `${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, CONFIG.gameOver.scoreY, {
                 align: 'center', font: gameOverFont,
             });
 
-            drawOutlinedText(this.ctx, 'BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY, {
+            drawOutlinedText(this.ctx, 'BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY + CONFIG.gameOver.scoreLabelY, {
                 align: 'center', font: gameOverFont,
             });
-            drawOutlinedText(this.ctx, `${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2, {
+            drawOutlinedText(this.ctx, `${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, CONFIG.gameOver.scoreY, {
                 align: 'center', font: gameOverFont,
+            });
+
+            const trophyItems = [
+                { threshold: 1, img: this.trophyBronze },
+                { threshold: 2, img: this.trophySilver },
+                { threshold: 3, img: this.trophyGold },
+            ];
+
+            const tScale = CONFIG.gameOver.trophyScale;
+            const tSpacing = CONFIG.gameOver.trophySpacing;
+            const tWidth = 30 * tScale;
+            const totalTrophyWidth = (tWidth * 3) + (tSpacing * 2);
+            let startX = (this.canvas.width - totalTrophyWidth) / 2;
+
+            trophyItems.forEach((t, i) => {
+                const isEarned = this.score > t.threshold;
+                const img = isEarned ? t.img : this.trophyOutline;
+                if (img.complete) {
+                    const w = img.width * tScale;
+                    const h = img.height * tScale;
+                    const x = startX + i * (w + tSpacing);
+                    const y = CONFIG.gameOver.trophyY;
+                    this.ctx.drawImage(img, x, y, w, h);
+
+                    if (!isEarned) {
+                        const fontSize = 7;
+                        drawOutlinedText(this.ctx, `${t.threshold}`, x + w / 2, y + h / 2 + 3, {
+                            align: 'center', font: `${fontSize}px ${CONFIG.ui.fontFamily}`
+                        });
+                    }
+                }
             });
 
             drawHoverButton(this.ctx, this.menuButtonImg, this.backButtonBounds, this.mouseX, this.mouseY, this.frames);

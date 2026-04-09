@@ -34,11 +34,11 @@ export const CONFIG = {
 
     butterfly: {
         size: 20,
-        spawnRate: 600, // every 10 seconds at 60fps
+        spawnRate: 600,
         speed: 0.5,
-        amplitudeX: 15, // reduced for smoother movement
+        amplitudeX: 15,
         amplitudeY: 10,
-        frequency: 0.015, // slower frequency
+        frequency: 0.015
     },
 
     cloud: {
@@ -114,9 +114,14 @@ export const CONFIG = {
         fadeDuration: 60,
         waitDuration: 60,
         menuButtonYOffset: 15,
-        scoreLabelY: -15,
         scoreLeftX: 0.3,
         scoreRightX: 0.7,
+        scoreY: 75,
+        scoreLabelY: -15,
+        trophyY: 5,
+        trophySpacing: 10,
+        trophyScale: 1,
+        menuButtonYOffset: 25,
     },
 
     highScore: {
@@ -164,5 +169,11 @@ export const CONFIG = {
             'game/graphics/butterfly/Gold Butterfly.png',
             'game/graphics/butterfly/unfolded Gold Butterfly.png',
         ],
+        trophy: {
+            bronze: 'game/graphics/trophy/bronze.png',
+            silver: 'game/graphics/trophy/silver.png',
+            gold: 'game/graphics/trophy/gold.png',
+            outline: 'game/graphics/trophy/outline.png',
+        },
     },
 };
