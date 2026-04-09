@@ -30,6 +30,11 @@ export function setupEventListeners(game) {
         if (game.bugManager.checkHit(game.mouseX, game.mouseY)) {
             game.score++;
         }
+
+        if (game.butterfly && game.butterfly.checkHit(game.mouseX, game.mouseY)) {
+            game.score += 5;
+            game.butterfly = null;
+        }
     });
 
     game.canvas.addEventListener('mouseup', () => {

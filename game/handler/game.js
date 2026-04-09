@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { drawOutlinedText } from '../utils/textRenderer.js';
 import { BugManager } from '../entities/bug.js';
+import { Butterfly } from '../entities/butterfly.js';
 import { drawGun } from '../draw/gun.js';
 import { drawUI } from '../draw/ui.js';
 import { CloudManager } from '../draw/cloud.js';
@@ -21,6 +22,7 @@ export class GameHandler {
         this.envHandler = new EnvHandler(this);
         this.bugManager = new BugManager(this);
         this.cloudManager = new CloudManager(this);
+        this.butterfly = null;
 
         this.mouseX = canvas.width / 2;
         this.mouseY = canvas.height / 2;
@@ -86,6 +88,17 @@ export class GameHandler {
                     }
                 }
             }
+
+            if (!this.butterfly && this.frames % CONFIG.butterfly.spawnRate === 0) {
+                this.butterfly = new Butterfly(this.canvas);
+            }
+
+            if (this.butterfly) {
+                this.butterfly.update();
+                if (this.butterfly.isOffScreen(this.canvas)) {
+                    this.butterfly = null;
+                }
+            }
         }
 
         this.ctx.imageSmoothingEnabled = false;
@@ -110,6 +123,9 @@ export class GameHandler {
             this.bugManager.spawn();
         }
         this.bugManager.updateAndDraw();
+        if (this.butterfly) {
+            this.butterfly.draw(this.ctx);
+        }
         this.envHandler.drawGrass();
         this.cloudManager.update();
         drawGun(this);

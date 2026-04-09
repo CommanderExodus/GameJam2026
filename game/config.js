@@ -32,6 +32,15 @@ export const CONFIG = {
         hitboxPadding: 8,
     },
 
+    butterfly: {
+        size: 20,
+        spawnRate: 600, // every 10 seconds at 60fps
+        speed: 0.5,
+        amplitudeX: 15, // reduced for smoother movement
+        amplitudeY: 10,
+        frequency: 0.015, // slower frequency
+    },
+
     cloud: {
         maxCount: 4,
         initialMinCount: 2,
@@ -151,5 +160,9 @@ export const CONFIG = {
             menuButton: 'game/graphics/ui/menu.png',
             logo: 'game/graphics/ui/logo.png',
         },
+        butterfly: [
+            'game/graphics/butterfly/Gold Butterfly.png',
+            'game/graphics/butterfly/unfolded Gold Butterfly.png',
+        ],
     },
 };
