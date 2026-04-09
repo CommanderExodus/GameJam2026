@@ -69,7 +69,7 @@ export class StartMenu {
         const isHovered = mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
                           mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight;
 
-        let drawY = this.buttonY + Math.sin(this.frames * 0.05) * 1;
+        let drawY = this.buttonY + Math.sin(this.frames * 0.05);
         let drawX = this.buttonX;
 
         if (isHovered) {
