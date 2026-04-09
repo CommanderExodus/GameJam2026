@@ -25,7 +25,7 @@ export function setupEventListeners(game) {
         game.isShooting = true;
         game.flashTimer = CONFIG.gameplay.flashDuration;
 
-        if (game.cloudManager.isPointObscured(game.mouseX, game.mouseY, game.frames)) return;
+
 
         if (game.bugManager.checkHit(game.mouseX, game.mouseY)) {
             game.score++;
