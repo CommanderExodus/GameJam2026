@@ -31,6 +31,8 @@ export class StartMenu {
         this.startButton.onload = imageLoaded;
         this.crosshair.onload = imageLoaded; // Load crosshair image
 
+        this.frames = 0; // Local frame counter for start menu animations
+
         this.handleClick = this.handleClick.bind(this);
         this.game.canvas.addEventListener('click', this.handleClick);
     }
@@ -49,14 +51,31 @@ export class StartMenu {
         const grassHeight = 27; // From env.js
         this.game.ctx.drawImage(this.grass, 0, this.game.canvas.height - grassHeight, this.game.canvas.width, grassHeight);
 
+        const mouseX = this.game.mouseX;
+        const mouseY = this.game.mouseY;
+        const isHovered = mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
+                          mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight;
+
+        let drawY = this.buttonY + Math.sin(this.frames * 0.05) * 1;
+        let drawX = this.buttonX;
+
+        if (isHovered) {
+            drawY += 2;
+            this.game.ctx.filter = 'brightness(80%)';
+        }
+
         // Draw start button
-        this.game.ctx.drawImage(this.startButton, this.buttonX, this.buttonY, this.buttonWidth, this.buttonHeight);
+        this.game.ctx.drawImage(this.startButton, drawX, drawY, this.buttonWidth, this.buttonHeight);
+
+        this.game.ctx.filter = 'none';
 
         // Draw crosshair at mouse position using calculation from ui.js
         const scale = 1;
         const w = this.crosshair.width * scale;
         const h = this.crosshair.height * scale;
         this.game.ctx.drawImage(this.crosshair, this.game.mouseX - w / 2, this.game.mouseY - h / 2, w, h);
+
+        this.frames++;
     }
 
     handleClick(event) {

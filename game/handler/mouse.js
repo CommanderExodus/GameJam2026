@@ -10,6 +10,8 @@ export function setupEventListeners(game) {
 
     game.canvas.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
+        
+        if (!game.isGameRunning) return;
 
         game.isShooting = true;
         game.flashTimer = 20;

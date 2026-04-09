@@ -28,6 +28,7 @@ export class GameHandler {
         this.gameOverTimer = 0;
 
         this.isGameRunning = false;
+        this.startFadeTimer = 0;
         this.startMenu = new StartMenu(this);
 
         setupEventListeners(this);
@@ -35,6 +36,7 @@ export class GameHandler {
 
     startActualGame() {
         this.isGameRunning = true;
+        this.startFadeTimer = 30; // 30 frames fade in
     }
 
     update() {
@@ -42,14 +44,16 @@ export class GameHandler {
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
         this.lastUpdateTime = now;
 
-        this.timerSeconds -= deltaSeconds;
-        if (this.timerSeconds <= 0 && !this.isGameOver) {
-            this.timerSeconds = 0;
-            this.isGameOver = true;
-            this.gameOverTimer = 0;
-            if (this.score > this.highScore) {
-                this.highScore = this.score;
-                localStorage.setItem('highScore', this.highScore);
+        if (this.isGameRunning && !this.isGameOver) {
+            this.timerSeconds -= deltaSeconds;
+            if (this.timerSeconds <= 0) {
+                this.timerSeconds = 0;
+                this.isGameOver = true;
+                this.gameOverTimer = 0;
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('highScore', this.highScore);
+                }
             }
         }
 
@@ -108,6 +112,13 @@ export class GameHandler {
         
         if (this.flashTimer > 0) {
             this.flashTimer--;
+        }
+
+        if (this.startFadeTimer > 0) {
+            const alpha = this.startFadeTimer / 30;
+            this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.startFadeTimer--;
         }
 
         drawUI(this);
