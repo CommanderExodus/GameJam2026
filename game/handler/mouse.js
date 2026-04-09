@@ -13,6 +13,18 @@ export function setupEventListeners(game) {
         
         if (!game.isGameRunning) return;
 
+        if (game.isGameOver) {
+            const fadeDuration = 60;
+            const waitDuration = 60;
+            if (game.gameOverTimer > fadeDuration + waitDuration) {
+                if (game.mouseX >= game.backButtonX && game.mouseX <= game.backButtonX + game.backButtonW &&
+                    game.mouseY >= game.backButtonY && game.mouseY <= game.backButtonY + game.backButtonH) {
+                    game.resetToMenu();
+                }
+            }
+            return;
+        }
+
         game.isShooting = true;
         game.flashTimer = 20;
 

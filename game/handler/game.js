@@ -31,7 +31,25 @@ export class GameHandler {
         this.startFadeTimer = 0;
         this.startMenu = new StartMenu(this);
 
+        this.backButtonW = 80;
+        this.backButtonH = 25;
+        this.backButtonX = canvas.width / 2 - this.backButtonW / 2;
+        this.backButtonY = canvas.height / 2 + 15;
+
+        this.menuButtonImg = new Image();
+        this.menuButtonImg.src = 'game/graphics/ui/menu.png';
+
         setupEventListeners(this);
+    }
+
+    resetToMenu() {
+        this.isGameOver = false;
+        this.isGameRunning = false;
+        this.score = 0;
+        this.frames = 0;
+        this.timerSeconds = 20;
+        this.bugManager.bugs = [];
+        this.startMenu = new StartMenu(this);
     }
 
     startActualGame() {
@@ -82,10 +100,33 @@ export class GameHandler {
                 this.ctx.font = "8px 'Press Start 2P', monospace";
                 this.ctx.textAlign = "center";
                 this.ctx.fillStyle = "white";
-                this.ctx.fillText(`FINAL SCORE`, this.canvas.width / 2, this.canvas.height / 2 - 20);
-                this.ctx.fillText(`${this.score}`, this.canvas.width / 2, this.canvas.height / 2 - 5);
-                this.ctx.fillText(`HIGH SCORE`, this.canvas.width / 2, this.canvas.height / 2 + 15);
-                this.ctx.fillText(`${this.highScore}`, this.canvas.width / 2, this.canvas.height / 2 + 30);
+                
+                // Final Score
+                this.ctx.fillText(`SCORE`, this.canvas.width * 0.3, this.canvas.height / 2 - 15);
+                this.ctx.fillText(`${this.score}`, this.canvas.width * 0.3, this.canvas.height / 2);
+                
+                // High Score
+                this.ctx.fillText(`BEST`, this.canvas.width * 0.7, this.canvas.height / 2 - 15);
+                this.ctx.fillText(`${this.highScore}`, this.canvas.width * 0.7, this.canvas.height / 2);
+
+                // Back to menu button
+                const isHovered = this.mouseX >= this.backButtonX && this.mouseX <= this.backButtonX + this.backButtonW &&
+                                  this.mouseY >= this.backButtonY && this.mouseY <= this.backButtonY + this.backButtonH;
+                
+                let drawY = this.backButtonY + Math.sin(this.frames * 0.05) * 1;
+                let drawX = this.backButtonX;
+
+                if (isHovered) {
+                    drawY += 2;
+                    this.ctx.filter = 'brightness(80%)';
+                }
+
+                if (this.menuButtonImg.complete) {
+                    this.ctx.drawImage(this.menuButtonImg, drawX, drawY, this.backButtonW, this.backButtonH);
+                }
+
+                this.ctx.filter = 'none';
+                
                 this.ctx.textAlign = "left"; // reset
             }
 

@@ -33,8 +33,8 @@ export class StartMenu {
 
         this.frames = 0; // Local frame counter for start menu animations
 
-        this.handleClick = this.handleClick.bind(this);
-        this.game.canvas.addEventListener('click', this.handleClick);
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.game.canvas.addEventListener('mousedown', this.handleMouseDown);
     }
 
     draw() {
@@ -50,6 +50,9 @@ export class StartMenu {
         // Draw grass (at the bottom)
         const grassHeight = 27; // From env.js
         this.game.ctx.drawImage(this.grass, 0, this.game.canvas.height - grassHeight, this.game.canvas.width, grassHeight);
+
+        // Update and draw clouds
+        this.game.cloudManager.update();
 
         const mouseX = this.game.mouseX;
         const mouseY = this.game.mouseY;
@@ -69,6 +72,15 @@ export class StartMenu {
 
         this.game.ctx.filter = 'none';
 
+        // Draw high score bottom right
+        this.game.ctx.font = "6px 'Press Start 2P', monospace";
+        this.game.ctx.textAlign = "right";
+        this.game.ctx.fillStyle = "black";
+        this.game.ctx.fillText(`BEST:${this.game.highScore}`, this.game.canvas.width - 4, this.game.canvas.height - 4);
+        this.game.ctx.fillStyle = "white";
+        this.game.ctx.fillText(`BEST:${this.game.highScore}`, this.game.canvas.width - 4, this.game.canvas.height - 5);
+        this.game.ctx.textAlign = "left";
+
         // Draw crosshair at mouse position using calculation from ui.js
         const scale = 1;
         const w = this.crosshair.width * scale;
@@ -78,7 +90,8 @@ export class StartMenu {
         this.frames++;
     }
 
-    handleClick(event) {
+    handleMouseDown(event) {
+        if (event.button !== 0) return;
         if (this.game.isGameRunning) return;
 
         // The mouseX and mouseY in game object are already scaled and relative to canvas
@@ -87,7 +100,7 @@ export class StartMenu {
 
         if (mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
             mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight) {
-            this.game.canvas.removeEventListener('click', this.handleClick);
+            this.game.canvas.removeEventListener('mousedown', this.handleMouseDown);
             this.game.startActualGame();
         }
     }
