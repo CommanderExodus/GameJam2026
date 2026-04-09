@@ -150,6 +150,13 @@ export class GameHandler {
 
         this.envHandler.drawBackground();
         this.bugManager.updateAndDraw();
+        if (this.butterfly) {
+            this.butterfly.update();
+            this.butterfly.draw(this.ctx);
+            if (this.butterfly.isOffScreen(this.canvas)) {
+                this.butterfly = null;
+            }
+        }
         this.envHandler.drawGrass();
         this.cloudManager.update();
         drawGun(this);
