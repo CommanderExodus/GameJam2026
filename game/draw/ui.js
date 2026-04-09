@@ -1,41 +1,26 @@
-const crosshairImg = new Image();
-crosshairImg.src = 'game/graphics/ui/crosshair.png';
+import { CONFIG } from '../config.js';
+import { loadImage } from '../utils/imageLoader.js';
+import { drawOutlinedText } from '../utils/textRenderer.js';
+
+const crosshairImg = loadImage(CONFIG.assets.ui.crosshair);
 
 export function drawUI(game, isGameOver = false) {
     game.ctx.imageSmoothingEnabled = false;
 
     if (!isGameOver) {
-        game.ctx.font = "6px 'Press Start 2P', monospace";
-        game.ctx.textAlign = "left";
-        
-        game.ctx.fillStyle = "black";
-        game.ctx.fillText(`SCORE: ${game.score}`, 3, 10);
-        game.ctx.fillText(`SCORE: ${game.score}`, 5, 10);
-        game.ctx.fillText(`SCORE: ${game.score}`, 4, 9);
-        game.ctx.fillText(`SCORE: ${game.score}`, 4, 11);
-
-        game.ctx.fillStyle = "white";
-        game.ctx.fillText(`SCORE: ${game.score}`, 4, 10);
+        drawOutlinedText(game.ctx, `SCORE: ${game.score}`, CONFIG.ui.scoreX, CONFIG.ui.scoreY);
 
         const timerValue = Math.max(0, Math.ceil(game.timerSeconds));
-        
-        game.ctx.textAlign = "right";
-        game.ctx.fillStyle = "black";
-        game.ctx.fillText(`TIME: ${timerValue}`, game.canvas.width - 5, 10);
-        game.ctx.fillText(`TIME: ${timerValue}`, game.canvas.width - 3, 10);
-        game.ctx.fillText(`TIME: ${timerValue}`, game.canvas.width - 4, 9);
-        game.ctx.fillText(`TIME: ${timerValue}`, game.canvas.width - 4, 11);
-        
-        game.ctx.fillStyle = "white";
-        game.ctx.fillText(`TIME: ${timerValue}`, game.canvas.width - 4, 10);
-        
-        game.ctx.textAlign = "left";
+        drawOutlinedText(game.ctx, `TIME: ${timerValue}`, game.canvas.width - CONFIG.ui.timerPadding, CONFIG.ui.timerY, {
+            align: 'right',
+        });
+
+        game.ctx.textAlign = 'left';
     }
 
     if (crosshairImg.complete) {
-        const scale = 1;
-        const w = crosshairImg.width * scale;
-        const h = crosshairImg.height * scale;
-        game.ctx.drawImage(crosshairImg, game.mouseX - w / 2, game.mouseY - h / 2, w, h);
+        const width = crosshairImg.width * CONFIG.ui.crosshairScale;
+        const height = crosshairImg.height * CONFIG.ui.crosshairScale;
+        game.ctx.drawImage(crosshairImg, game.mouseX - width / 2, game.mouseY - height / 2, width, height);
     }
 }

@@ -1,15 +1,13 @@
+import { CONFIG } from '../config.js';
+import { loadImage } from '../utils/imageLoader.js';
+
 export class EnvHandler {
     constructor(game) {
         this.game = game;
-        
         this.grassHeight = 30;
         this.grassY = game.canvas.height - this.grassHeight;
-
-        this.backgroundImg = new Image();
-        this.backgroundImg.src = 'game/graphics/env/background.png';
-
-        this.grassImg = new Image();
-        this.grassImg.src = 'game/graphics/env/grass.png';
+        this.backgroundImg = loadImage(CONFIG.assets.env.background);
+        this.grassImg = loadImage(CONFIG.assets.env.grass);
     }
 
     drawBackground() {

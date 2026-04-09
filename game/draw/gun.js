@@ -1,30 +1,34 @@
+import { CONFIG } from '../config.js';
 import { Bobbing } from '../utils/bobbing.js';
+import { loadImage, loadImageSequence } from '../utils/imageLoader.js';
 
-const gunImgA = new Image();
-gunImgA.src = 'game/graphics/gun/a.png';
-
-const gunImgB = new Image();
-gunImgB.src = 'game/graphics/gun/b.png';
-
-const muzzleImages = [];
-for (let i = 1; i <= 6; i++) {
-    const img = new Image();
-    img.src = `game/graphics/gun/muzzle_${i}.png`;
-    muzzleImages.push(img);
-}
+const gunIdle = loadImage(CONFIG.assets.gun.idle);
+const gunFiring = loadImage(CONFIG.assets.gun.firing);
+const muzzleImages = loadImageSequence(CONFIG.assets.gun.muzzlePrefix, CONFIG.gun.muzzleFrameCount);
 
 export function drawGun(game) {
     const centerX = game.canvas.width / 2;
 
-    const mouseSway = Bobbing.getMouseSway(game.mouseX, game.mouseY, game.canvas.width, game.canvas.height, 0.05);
-    
-    const breathing = Bobbing.getBreathing(game.frames, 0.05, 2, 0.025, 1);
+    const mouseSway = Bobbing.getMouseSway(
+        game.mouseX, game.mouseY,
+        game.canvas.width, game.canvas.height,
+        CONFIG.gun.mouseSwayFactor
+    );
+
+    const breathing = Bobbing.getBreathing(
+        game.frames,
+        CONFIG.gun.breathingFreqX, CONFIG.gun.breathingAmpX,
+        CONFIG.gun.breathingFreqY, CONFIG.gun.breathingAmpY
+    );
 
     game.ctx.save();
-    game.ctx.translate(centerX + mouseSway.x + breathing.x, game.canvas.height + mouseSway.y + breathing.y);
+    game.ctx.translate(
+        centerX + mouseSway.x + breathing.x,
+        game.canvas.height + mouseSway.y + breathing.y
+    );
 
-    const gunImg = game.flashTimer > 0 ? gunImgB : gunImgA;
-    const scale = Bobbing.getScale(game.frames, 0.8, 0.04, 0.05);
+    const gunImg = game.flashTimer > 0 ? gunFiring : gunIdle;
+    const scale = Bobbing.getScale(game.frames, CONFIG.gun.defaultScale, CONFIG.gun.scaleFrequency, CONFIG.gun.scaleAmplitude);
 
     let width = 0;
     let height = 0;
@@ -34,17 +38,17 @@ export function drawGun(game) {
     }
 
     if (game.flashTimer > 0) {
-        const flashY = gunImg.complete ? -height : -15;
-        
-        const maxFrames = 20;
-        let index = Math.floor(((maxFrames - game.flashTimer) / maxFrames) * muzzleImages.length);
-        index = Math.max(0, Math.min(muzzleImages.length - 1, index));
-        
-        const muzzImg = muzzleImages[index];
-        if (muzzImg.complete) {
-            const muzzWidth = muzzImg.width * scale * 0.5;
-            const h = muzzImg.height * scale * 0.5;
-            game.ctx.drawImage(muzzImg, -muzzWidth / 2, flashY - h / 2, muzzWidth, h);
+        const flashY = gunImg.complete ? -height : CONFIG.gun.fallbackFlashY;
+        const flashDuration = CONFIG.gameplay.flashDuration;
+
+        let frameIndex = Math.floor(((flashDuration - game.flashTimer) / flashDuration) * muzzleImages.length);
+        frameIndex = Math.max(0, Math.min(muzzleImages.length - 1, frameIndex));
+
+        const muzzleImg = muzzleImages[frameIndex];
+        if (muzzleImg.complete) {
+            const muzzleWidth = muzzleImg.width * scale * CONFIG.gun.muzzleScale;
+            const muzzleHeight = muzzleImg.height * scale * CONFIG.gun.muzzleScale;
+            game.ctx.drawImage(muzzleImg, -muzzleWidth / 2, flashY - muzzleHeight / 2, muzzleWidth, muzzleHeight);
         }
     }
 
