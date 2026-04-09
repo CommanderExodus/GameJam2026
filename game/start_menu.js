@@ -9,6 +9,8 @@ export class StartMenu {
         this.startButton.src = 'game/graphics/ui/start.png';
         this.crosshair = new Image();
         this.crosshair.src = 'game/graphics/ui/crosshair.png';
+        this.logo = new Image();
+        this.logo.src = 'game/graphics/ui/Bug_Hunt_Logo.png';
 
         // Button dimensions on the 160x120 canvas
         this.buttonWidth = 80;
@@ -17,7 +19,7 @@ export class StartMenu {
         this.buttonY = this.game.canvas.height * 0.7;
 
         this.isLoaded = false;
-        let imagesToLoad = 4; // Increased to account for crosshair
+        let imagesToLoad = 5; // Increased for logo
 
         const imageLoaded = () => {
             imagesToLoad--;
@@ -29,7 +31,8 @@ export class StartMenu {
         this.background.onload = imageLoaded;
         this.grass.onload = imageLoaded;
         this.startButton.onload = imageLoaded;
-        this.crosshair.onload = imageLoaded; // Load crosshair image
+        this.crosshair.onload = imageLoaded;
+        this.logo.onload = imageLoaded;
 
         this.frames = 0; // Local frame counter for start menu animations
 
@@ -54,6 +57,13 @@ export class StartMenu {
         // Update and draw clouds
         this.game.cloudManager.update();
 
+        // Draw Logo (Top)
+        const logoWidth = 120; // Proportional width for 160px canvas
+        const logoHeight = (this.logo.height / this.logo.width) * logoWidth;
+        const logoX = (this.game.canvas.width - logoWidth) / 2;
+        const logoY = 10 + Math.sin(this.frames * 0.05) * 2; // Floating animation
+        this.game.ctx.drawImage(this.logo, logoX, logoY, logoWidth, logoHeight);
+
         const mouseX = this.game.mouseX;
         const mouseY = this.game.mouseY;
         const isHovered = mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
@@ -76,9 +86,9 @@ export class StartMenu {
         this.game.ctx.font = "6px 'Press Start 2P', monospace";
         this.game.ctx.textAlign = "right";
         this.game.ctx.fillStyle = "black";
-        this.game.ctx.fillText(`BEST:${this.game.highScore}`, this.game.canvas.width - 4, this.game.canvas.height - 4);
+        this.game.ctx.fillText(`BEST:${this.game.highScore || 0}`, this.game.canvas.width - 4, this.game.canvas.height - 4);
         this.game.ctx.fillStyle = "white";
-        this.game.ctx.fillText(`BEST:${this.game.highScore}`, this.game.canvas.width - 4, this.game.canvas.height - 5);
+        this.game.ctx.fillText(`BEST:${this.game.highScore || 0}`, this.game.canvas.width - 4, this.game.canvas.height - 5);
         this.game.ctx.textAlign = "left";
 
         // Draw crosshair at mouse position using calculation from ui.js
