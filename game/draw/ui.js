@@ -7,8 +7,6 @@ export function drawUI(game) {
     game.ctx.textAlign = "left";
     game.ctx.fillText(`SCORE: ${game.score}`, 4, 10);
 
-    game.ctx.imageSmoothingEnabled = false;
-
     if (crosshairImg.complete) {
         const scale = 1;
         const w = crosshairImg.width * scale;

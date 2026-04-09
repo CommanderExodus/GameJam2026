@@ -1,3 +1,5 @@
+import { Bobbing } from '../utils/bobbing.js';
+
 const gunImgA = new Image();
 gunImgA.src = 'game/graphics/gun/a.png';
 
@@ -16,15 +18,14 @@ export function drawGun(game) {
 
     const swayX = (game.mouseX - centerX) * 0.05;
     const swayY = (game.mouseY - game.canvas.height / 2) * 0.05;
-    const breathingSwayX = Math.sin(game.frames * 0.05) * 2;
-    const breathingSwayY = Math.cos(game.frames * 0.025) * 1;
+    
+    const breathing = Bobbing.getBreathing(game.frames, 0.05, 2, 0.025, 1);
 
     game.ctx.save();
-    game.ctx.translate(centerX + swayX + breathingSwayX, game.canvas.height + swayY + breathingSwayY);
+    game.ctx.translate(centerX + swayX + breathing.x, game.canvas.height + swayY + breathing.y);
 
     const gunImg = game.flashTimer > 0 ? gunImgB : gunImgA;
-    const scale = 0.8 + Math.sin(game.frames * 0.04) * 0.05; 
-    game.ctx.imageSmoothingEnabled = false;
+    const scale = Bobbing.getScale(game.frames, 0.8, 0.04, 0.05);
 
     let width = 0;
     let height = 0;

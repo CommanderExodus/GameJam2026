@@ -36,7 +36,6 @@ export class Bug {
         ctx.save();
         ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
         if (this.isDead) ctx.scale(1, -1);
-        ctx.imageSmoothingEnabled = false;
         ctx.drawImage(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
         ctx.restore();
     }

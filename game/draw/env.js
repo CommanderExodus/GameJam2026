@@ -20,7 +20,6 @@ export class EnvHandler {
 
     drawGrass() {
         if (this.grassImg.complete) {
-            this.game.ctx.imageSmoothingEnabled = false;
             this.game.ctx.drawImage(this.grassImg, 0, this.grassY, this.game.canvas.width, this.grassHeight);
         }
     }

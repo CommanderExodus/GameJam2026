@@ -1,3 +1,5 @@
+import { Bobbing } from '../utils/bobbing.js';
+
 const cloudImages = [
     'game/graphics/clouds/1.png'
 ].map(src => {
@@ -21,17 +23,27 @@ export class Cloud {
         this.x += this.vx;
     }
 
-    draw(ctx, frames) {
+    getRenderProps(frames) {
         const age = frames - this.spawnFrame;
-        const swayY = Math.sin(age * 0.02) * 5;
-        const scale = this.baseScale * (1 + Math.sin(age * 0.05) * 0.1);
+        const swayY = Bobbing.getSway(age, 0.02, 5);
+        const scale = Bobbing.getScale(age, this.baseScale, 0.05, 0.1);
 
-        if (this.img.complete) {
-            const width = this.img.width * scale;
-            const height = this.img.height * scale;
-            ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(this.img, this.x - width / 2, this.y + swayY - height / 2, width, height);
-        }
+        const width = this.img.complete ? this.img.width * scale : 0;
+        const height = this.img.complete ? this.img.height * scale : 0;
+        
+        return {
+            x: this.x - width / 2,
+            y: this.y + swayY - height / 2,
+            width,
+            height
+        };
+    }
+
+    draw(ctx, frames) {
+        if (!this.img.complete) return;
+
+        const p = this.getRenderProps(frames);
+        ctx.drawImage(this.img, p.x, p.y, p.width, p.height);
     }
 
     isOffscreen() {
@@ -41,17 +53,8 @@ export class Cloud {
     isPointObscured(px, py, frames) {
         if (!this.img.complete) return false;
         
-        const age = frames - this.spawnFrame;
-        const swayY = Math.sin(age * 0.02) * 5;
-        const scale = this.baseScale * (1 + Math.sin(age * 0.05) * 0.1);
-        
-        const width = this.img.width * scale;
-        const height = this.img.height * scale;
-        
-        const cx = this.x - width / 2;
-        const cy = this.y + swayY - height / 2;
-        
-        return px > cx && px < cx + width && py > cy && py < cy + height;
+        const p = this.getRenderProps(frames);
+        return px > p.x && px < p.x + p.width && py > p.y && py < p.y + p.height;
     }
 }
 
