@@ -7,38 +7,59 @@ const butterflyImages = loadImages(CONFIG.assets.butterfly);
 export class Butterfly {
     constructor(canvas) {
         this.size = CONFIG.butterfly.size;
-        this.centerX = canvas.width / 2;
-        this.centerY = canvas.height / 2;
-        this.x = this.centerX;
-        this.y = this.centerY;
+
         this.amplitudeX = CONFIG.butterfly.amplitudeX;
         this.amplitudeY = CONFIG.butterfly.amplitudeY;
         this.frequency = CONFIG.butterfly.frequency;
         this.time = 0;
         this.images = butterflyImages;
         this.frame = 0;
-        this.animationSpeed = 10; // change image every 10 frames
+        this.animationSpeed = 10;
 
-        // Choose a random edge to fly towards
+        // Choose a random edge to spawn on
         const edge = Math.floor(Math.random() * 4); // 0: left, 1: right, 2: top, 3: bottom
         if (edge === 0) { // left
-            this.targetX = -this.size;
-            this.targetY = canvas.height / 2;
-        } else if (edge === 1) { // right
+            this.centerX = -this.size;
+            this.centerY = Math.random() * canvas.height;
             this.targetX = canvas.width + this.size;
-            this.targetY = canvas.height / 2;
+            this.targetY = Math.random() * canvas.height;
+        } else if (edge === 1) { // right
+            this.centerX = canvas.width + this.size;
+            this.centerY = Math.random() * canvas.height;
+            this.targetX = -this.size;
+            this.targetY = Math.random() * canvas.height;
         } else if (edge === 2) { // top
-            this.targetX = canvas.width / 2;
-            this.targetY = -this.size;
-        } else { // bottom
-            this.targetX = canvas.width / 2;
+            this.centerX = Math.random() * canvas.width;
+            this.centerY = -this.size;
+            this.targetX = Math.random() * canvas.width;
             this.targetY = canvas.height + this.size;
+        } else { // bottom
+            this.centerX = Math.random() * canvas.width;
+            this.centerY = canvas.height + this.size;
+            this.targetX = Math.random() * canvas.width;
+            this.targetY = -this.size;
         }
+        
+        this.x = this.centerX;
+        this.y = this.centerY;
+        
         this.driftSpeed = 0.5; // how fast it drifts towards target
+
+        this.isDead = false;
+        this.deathTimer = 0;
+        this.vy = 0;
     }
 
     update() {
-        // Move center towards target
+        if (this.isDead) {
+            this.deathTimer++;
+            if (this.deathTimer >= CONFIG.bug.deathFreezeFrames) {
+                this.y += this.vy;
+            }
+            return;
+        }
+
+        // normal movement
         const dx = this.targetX - this.centerX;
         const dy = this.targetY - this.centerY;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -56,12 +77,21 @@ export class Butterfly {
     draw(ctx) {
         const currentImg = this.images[Math.floor(this.frame / this.animationSpeed) % this.images.length];
         if (!currentImg.complete) return;
-        ctx.drawImage(currentImg, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+
+        if (this.isDead && this.deathTimer >= CONFIG.bug.deathBlinkThreshold) {
+            if (Math.floor(this.deathTimer / CONFIG.bug.deathBlinkInterval) % 2 === 0) return;
+        }
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        if (this.isDead) ctx.scale(1, -1);
+        ctx.drawImage(currentImg, -this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
     }
 
     isOffScreen(canvas) {
-        return this.x < -this.size || this.x > canvas.width + this.size ||
-               this.y < -this.size || this.y > canvas.height + this.size;
+        return this.x < -this.size * 2 || this.x > canvas.width + this.size * 2 ||
+               this.y < -this.size * 2 || this.y > canvas.height + this.size * 2;
     }
 
     checkHit(mouseX, mouseY) {

@@ -31,9 +31,11 @@ export function setupEventListeners(game) {
             game.score++;
         }
 
-        if (game.butterfly && game.butterfly.checkHit(game.mouseX, game.mouseY)) {
+        if (game.butterfly && !game.butterfly.isDead && game.butterfly.checkHit(game.mouseX, game.mouseY)) {
             game.score += 5;
-            game.butterfly = null;
+            game.butterfly.isDead = true;
+            game.butterfly.deathTimer = 0;
+            game.butterfly.vy = CONFIG.bug.deathFallSpeed;
         }
     });
 
