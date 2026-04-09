@@ -9,13 +9,22 @@ const cloudImages = [
 });
 
 export class Cloud {
-    constructor(canvas, frames) {
+    constructor(canvas, frames, startX = null) {
         this.canvas = canvas;
         this.img = cloudImages[Math.floor(Math.random() * cloudImages.length)];
         this.y = Math.random() * (canvas.height / 3);
-        this.vx = (Math.random() * 0.2 + 0.1) * (Math.random() < 0.5 ? 1 : -1);
-        this.x = this.vx > 0 ? -100 : canvas.width + 100;
-        this.baseScale = Math.random() * 0.5 + 0.5;
+        
+        this.depth = Math.random() * 0.5 + 0.5; 
+        
+        this.vx = (Math.random() * 0.2 + 0.1) * this.depth * (Math.random() < 0.5 ? 1 : -1);
+        
+        if (startX !== null) {
+            this.x = startX;
+        } else {
+            this.x = this.vx > 0 ? -100 : canvas.width + 100;
+        }
+        
+        this.baseScale = (Math.random() * 0.4 + 0.4) * this.depth;
         this.spawnFrame = frames;
     }
 
@@ -25,7 +34,7 @@ export class Cloud {
 
     getRenderProps(frames) {
         const age = frames - this.spawnFrame;
-        const swayY = Bobbing.getSway(age, 0.02, 5);
+        const swayY = Bobbing.getSway(age, 0.02, 3);
         const scale = Bobbing.getScale(age, this.baseScale, 0.05, 0.1);
 
         const width = this.img.complete ? this.img.width * scale : 0;
@@ -62,16 +71,32 @@ export class CloudManager {
     constructor(game) {
         this.game = game;
         this.clouds = [];
+        this.spawnTimer = 0;
+        
+        // Ensure there's always a few clouds on screen at start
+        const initialClouds = Math.floor(Math.random() * 3) + 2; // 2 to 4 clouds
+        for (let i = 0; i < initialClouds; i++) {
+            const randomX = Math.random() * game.canvas.width;
+            this.clouds.push(new Cloud(game.canvas, game.frames, randomX));
+        }
     }
 
     spawnCloud() {
-        if (Math.random() < 0.005) {
-            this.clouds.push(new Cloud(this.game.canvas, this.game.frames));
+        if (this.clouds.length < 4) {
+            if (this.spawnTimer <= 0) {
+                this.clouds.push(new Cloud(this.game.canvas, this.game.frames));
+                // Spawns within 1 to 2 seconds of a slot freeing up, or empty game
+                this.spawnTimer = Math.floor(Math.random() * 60) + 60;
+            } else {
+                this.spawnTimer--;
+            }
         }
     }
 
     update() {
         this.spawnCloud();
+
+        this.clouds.sort((a, b) => a.depth - b.depth);
 
         for (let i = this.clouds.length - 1; i >= 0; i--) {
             let c = this.clouds[i];
