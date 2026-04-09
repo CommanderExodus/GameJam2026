@@ -11,6 +11,7 @@ export class GameHandler {
         this.ctx = ctx;
         this.score = 0;
         this.frames = 0;
+        this.highScore = parseInt(localStorage.getItem('highScore')) || 0;
 
         this.envHandler = new EnvHandler(this);
         this.bugManager = new BugManager(this);
@@ -38,6 +39,10 @@ export class GameHandler {
             this.timerSeconds = 0;
             this.isGameOver = true;
             this.gameOverTimer = 0;
+            if (this.score > this.highScore) {
+                this.highScore = this.score;
+                localStorage.setItem('highScore', this.highScore);
+            }
         }
 
         this.ctx.imageSmoothingEnabled = false;
@@ -65,8 +70,10 @@ export class GameHandler {
                 this.ctx.font = "8px 'Press Start 2P', monospace";
                 this.ctx.textAlign = "center";
                 this.ctx.fillStyle = "white";
-                this.ctx.fillText(`FINAL SCORE`, this.canvas.width / 2, this.canvas.height / 2 - 10);
-                this.ctx.fillText(`${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 10);
+                this.ctx.fillText(`FINAL SCORE`, this.canvas.width / 2, this.canvas.height / 2 - 20);
+                this.ctx.fillText(`${this.score}`, this.canvas.width / 2, this.canvas.height / 2 - 5);
+                this.ctx.fillText(`HIGH SCORE`, this.canvas.width / 2, this.canvas.height / 2 + 15);
+                this.ctx.fillText(`${this.highScore}`, this.canvas.width / 2, this.canvas.height / 2 + 30);
                 this.ctx.textAlign = "left"; // reset
             }
 
