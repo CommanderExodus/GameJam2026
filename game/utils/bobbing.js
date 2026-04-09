@@ -10,6 +10,13 @@ export class Bobbing {
         return Math.sin(frames * freq) * amp;
     }
 
+    static getMouseSway(mouseX, mouseY, canvasWidth, canvasHeight, factor) {
+        return {
+            x: (mouseX - canvasWidth / 2) * factor,
+            y: (mouseY - canvasHeight / 2) * factor
+        };
+    }
+
     static getScale(frames, baseScale, freq, amp) {
         return baseScale * (1 + Math.sin(frames * freq) * amp);
     }

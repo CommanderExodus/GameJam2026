@@ -21,11 +21,20 @@ export class Bug {
 
         this.gravity = 0.05;
         this.isDead = false;
+        this.deathTimer = 0;
 
         this.img = bugImages[Math.floor(Math.random() * bugImages.length)];
     }
 
     update() {
+        if (this.isDead) {
+            this.deathTimer++;
+            if (this.deathTimer < 15) {
+                // Freeze for 10 frames
+                return;
+            }
+        }
+        
         this.vy += this.gravity;
         this.x += this.vx;
         this.y += this.vy;
@@ -33,6 +42,15 @@ export class Bug {
 
     draw(ctx) {
         if (!this.img.complete) return;
+        
+        if (this.isDead && this.deathTimer >= 10) {
+            // Blink every 0.3 seconds while falling
+            // 60 frames per second * 0.3 = 18 frames per blink toggle
+            if (Math.floor(this.deathTimer / 12) % 2 === 0) {
+                return;
+            }
+        }
+
         ctx.save();
         ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
         if (this.isDead) ctx.scale(1, -1);
@@ -73,8 +91,10 @@ export class BugManager {
                     mouseY > b.y && mouseY < b.y + b.size) {
                     if (mouseY < this.game.envHandler.grassY) {
                         b.isDead = true;
-                        b.vy = 2;
+                        b.deathTimer = 0;
+                        b.vy = 1.2; // Slower, constant fall speed
                         b.vx = 0;
+                        b.gravity = 0; // Disable gravity so it falls at a steady rate like the NES
                         return true;
                     }
                 }
