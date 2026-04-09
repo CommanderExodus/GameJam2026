@@ -16,13 +16,12 @@ for (let i = 1; i <= 6; i++) {
 export function drawGun(game) {
     const centerX = game.canvas.width / 2;
 
-    const swayX = (game.mouseX - centerX) * 0.05;
-    const swayY = (game.mouseY - game.canvas.height / 2) * 0.05;
+    const mouseSway = Bobbing.getMouseSway(game.mouseX, game.mouseY, game.canvas.width, game.canvas.height, 0.05);
     
     const breathing = Bobbing.getBreathing(game.frames, 0.05, 2, 0.025, 1);
 
     game.ctx.save();
-    game.ctx.translate(centerX + swayX + breathing.x, game.canvas.height + swayY + breathing.y);
+    game.ctx.translate(centerX + mouseSway.x + breathing.x, game.canvas.height + mouseSway.y + breathing.y);
 
     const gunImg = game.flashTimer > 0 ? gunImgB : gunImgA;
     const scale = Bobbing.getScale(game.frames, 0.8, 0.04, 0.05);
