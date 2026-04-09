@@ -1,10 +1,4 @@
 export const CONFIG = {
-    canvas: {
-        width: 160,
-        height: 120,
-        displayWidth: 800,
-        displayHeight: 600,
-    },
 
     gameplay: {
         timerDuration: 120,
@@ -37,7 +31,6 @@ export const CONFIG = {
     butterfly: {
         size: 20,
         spawnRate: 600,
-        speed: 0.5,
         amplitudeX: 15,
         amplitudeY: 10,
         frequency: 0.015,
@@ -137,7 +130,6 @@ export const CONFIG = {
     highScore: {
         paddingRight: 4,
         paddingTop: 12,
-        shadowOffset: 1,
     },
 
     logo: {

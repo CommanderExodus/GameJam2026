@@ -29,7 +29,7 @@ export class GameHandler {
         this.isShooting = false;
         this.flashTimer = 0;
         this.timerSeconds = CONFIG.gameplay.timerDuration;
-        this.lastUpdateTime = performance.now();
+        this.fixedDelta = 1 / CONFIG.gameplay.targetFps;
         this.isGameOver = false;
         this.gameOverTimer = 0;
 
@@ -73,14 +73,10 @@ export class GameHandler {
     }
 
     update() {
-        const now = performance.now();
-        const deltaSeconds = (now - this.lastUpdateTime) / 1000;
-        this.lastUpdateTime = now;
-
         this.frames++;
 
         if (this.isGameRunning && !this.isGameOver) {
-            this.updateGameplay(deltaSeconds);
+            this.updateGameplay(this.fixedDelta);
         }
 
         this.ctx.imageSmoothingEnabled = false;
