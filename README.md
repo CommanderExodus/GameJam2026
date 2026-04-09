@@ -49,4 +49,4 @@ Vielen Dank fürs Spielen!
 
 
 # Erklärung zur Nutzung generativer KI
-Im Rahmen der vorliegenden Ausarbeitung wurde generative KI (Google Gemini & Claude Opus) verwendet
+Im Rahmen des vorliegenden Spiels wurde generative KI (Google Gemini & Claude Opus) verwendet
