@@ -19,7 +19,7 @@ export class StartMenu {
         this.buttonY = this.game.canvas.height * 0.7;
 
         this.isLoaded = false;
-        let imagesToLoad = 5; // Increased for logo
+        let imagesToLoad = 5;  // Increased for logo
 
         const imageLoaded = () => {
             imagesToLoad--;
@@ -64,12 +64,13 @@ export class StartMenu {
         const logoY = 10 + Math.sin(this.frames * 0.05) * 2; // Floating animation
         this.game.ctx.drawImage(this.logo, logoX, logoY, logoWidth, logoHeight);
 
+
         const mouseX = this.game.mouseX;
         const mouseY = this.game.mouseY;
         const isHovered = mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
                           mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight;
 
-        let drawY = this.buttonY + Math.sin(this.frames * 0.05);
+        let drawY = this.buttonY + Math.sin(this.frames * 0.05) * 1;
         let drawX = this.buttonX;
 
         if (isHovered) {

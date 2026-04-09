@@ -1,30 +1,25 @@
+import { CONFIG } from '../config.js';
 import { Bobbing } from '../utils/bobbing.js';
+import { loadImages } from '../utils/imageLoader.js';
 
-const cloudImages = [
-    'game/graphics/clouds/1.png'
-].map(src => {
-    const img = new Image();
-    img.src = src;
-    return img;
-});
+const cloudImages = loadImages(CONFIG.assets.clouds);
 
 export class Cloud {
     constructor(canvas, frames, startX = null) {
         this.canvas = canvas;
         this.img = cloudImages[Math.floor(Math.random() * cloudImages.length)];
-        this.y = Math.random() * (canvas.height / 3);
-        
-        this.depth = Math.random() * 0.5 + 0.5; 
-        
-        this.vx = (Math.random() * 0.2 + 0.1) * this.depth * (Math.random() < 0.5 ? 1 : -1);
-        
-        if (startX !== null) {
-            this.x = startX;
-        } else {
-            this.x = this.vx > 0 ? -100 : canvas.width + 100;
-        }
-        
-        this.baseScale = (Math.random() * 0.4 + 0.4) * this.depth;
+        this.y = Math.random() * (canvas.height * CONFIG.cloud.maxYFraction);
+
+        this.depth = Math.random() * CONFIG.cloud.depthRange + CONFIG.cloud.minDepth;
+        this.vx = (Math.random() * CONFIG.cloud.speedRange + CONFIG.cloud.minSpeed)
+                  * this.depth
+                  * (Math.random() < 0.5 ? 1 : -1);
+
+        this.x = startX !== null
+            ? startX
+            : (this.vx > 0 ? -CONFIG.cloud.offscreenSpawnMargin : canvas.width + CONFIG.cloud.offscreenSpawnMargin);
+
+        this.baseScale = (Math.random() * CONFIG.cloud.scaleRange + CONFIG.cloud.minScale) * this.depth;
         this.spawnFrame = frames;
     }
 
@@ -34,36 +29,37 @@ export class Cloud {
 
     getRenderProps(frames) {
         const age = frames - this.spawnFrame;
-        const swayY = Bobbing.getSway(age, 0.02, 3);
-        const scale = Bobbing.getScale(age, this.baseScale, 0.05, 0.1);
+        const swayY = Bobbing.getSway(age, CONFIG.cloud.swayFrequency, CONFIG.cloud.swayAmplitude);
+        const scale = Bobbing.getScale(age, this.baseScale, CONFIG.cloud.scaleFrequency, CONFIG.cloud.scaleAmplitude);
 
         const width = this.img.complete ? this.img.width * scale : 0;
         const height = this.img.complete ? this.img.height * scale : 0;
-        
+
         return {
             x: this.x - width / 2,
             y: this.y + swayY - height / 2,
             width,
-            height
+            height,
         };
     }
 
     draw(ctx, frames) {
         if (!this.img.complete) return;
-
-        const p = this.getRenderProps(frames);
-        ctx.drawImage(this.img, p.x, p.y, p.width, p.height);
+        const props = this.getRenderProps(frames);
+        ctx.drawImage(this.img, props.x, props.y, props.width, props.height);
     }
 
     isOffscreen() {
-        return (this.vx > 0 && this.x > this.canvas.width + 200) || (this.vx < 0 && this.x < -200);
+        const margin = CONFIG.cloud.offscreenRemoveMargin;
+        return (this.vx > 0 && this.x > this.canvas.width + margin)
+            || (this.vx < 0 && this.x < -margin);
     }
 
     isPointObscured(px, py, frames) {
         if (!this.img.complete) return false;
-        
-        const p = this.getRenderProps(frames);
-        return px > p.x && px < p.x + p.width && py > p.y && py < p.y + p.height;
+        const props = this.getRenderProps(frames);
+        return px > props.x && px < props.x + props.width
+            && py > props.y && py < props.y + props.height;
     }
 }
 
@@ -72,21 +68,19 @@ export class CloudManager {
         this.game = game;
         this.clouds = [];
         this.spawnTimer = 0;
-        
-        // Ensure there's always a few clouds on screen at start
-        const initialClouds = Math.floor(Math.random() * 3) + 2; // 2 to 4 clouds
-        for (let i = 0; i < initialClouds; i++) {
+
+        const initialCount = Math.floor(Math.random() * (CONFIG.cloud.initialMaxCount - CONFIG.cloud.initialMinCount + 1)) + CONFIG.cloud.initialMinCount;
+        for (let i = 0; i < initialCount; i++) {
             const randomX = Math.random() * game.canvas.width;
             this.clouds.push(new Cloud(game.canvas, game.frames, randomX));
         }
     }
 
     spawnCloud() {
-        if (this.clouds.length < 4) {
+        if (this.clouds.length < CONFIG.cloud.maxCount) {
             if (this.spawnTimer <= 0) {
                 this.clouds.push(new Cloud(this.game.canvas, this.game.frames));
-                // Spawns within 1 to 2 seconds of a slot freeing up, or empty game
-                this.spawnTimer = Math.floor(Math.random() * 60) + 60;
+                this.spawnTimer = Math.floor(Math.random() * CONFIG.cloud.spawnDelayRange) + CONFIG.cloud.minSpawnDelay;
             } else {
                 this.spawnTimer--;
             }
@@ -95,26 +89,19 @@ export class CloudManager {
 
     update() {
         this.spawnCloud();
-
         this.clouds.sort((a, b) => a.depth - b.depth);
 
         for (let i = this.clouds.length - 1; i >= 0; i--) {
-            let c = this.clouds[i];
-            c.update();
-            c.draw(this.game.ctx, this.game.frames);
-
-            if (c.isOffscreen()) {
+            const cloud = this.clouds[i];
+            cloud.update();
+            cloud.draw(this.game.ctx, this.game.frames);
+            if (cloud.isOffscreen()) {
                 this.clouds.splice(i, 1);
             }
         }
     }
 
     isPointObscured(px, py, frames) {
-        for (let c of this.clouds) {
-            if (c.isPointObscured(px, py, frames)) {
-                return true;
-            }
-        }
-        return false;
+        return this.clouds.some(cloud => cloud.isPointObscured(px, py, frames));
     }
 }

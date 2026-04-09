@@ -1,36 +1,31 @@
+import { CONFIG } from '../config.js';
+import { isInsideBounds } from '../utils/buttonRenderer.js';
+
 export function setupEventListeners(game) {
-    game.canvas.addEventListener('mousemove', (e) => {
+    game.canvas.addEventListener('mousemove', (event) => {
         const rect = game.canvas.getBoundingClientRect();
         const scaleX = game.canvas.width / rect.width;
         const scaleY = game.canvas.height / rect.height;
-
-        game.mouseX = (e.clientX - rect.left) * scaleX;
-        game.mouseY = (e.clientY - rect.top) * scaleY;
+        game.mouseX = (event.clientX - rect.left) * scaleX;
+        game.mouseY = (event.clientY - rect.top) * scaleY;
     });
 
-    game.canvas.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        
+    game.canvas.addEventListener('mousedown', (event) => {
+        if (event.button !== 0) return;
         if (!game.isGameRunning) return;
 
         if (game.isGameOver) {
-            const fadeDuration = 60;
-            const waitDuration = 60;
-            if (game.gameOverTimer > fadeDuration + waitDuration) {
-                if (game.mouseX >= game.backButtonX && game.mouseX <= game.backButtonX + game.backButtonW &&
-                    game.mouseY >= game.backButtonY && game.mouseY <= game.backButtonY + game.backButtonH) {
-                    game.resetToMenu();
-                }
+            const revealTime = CONFIG.gameOver.fadeDuration + CONFIG.gameOver.waitDuration;
+            if (game.gameOverTimer > revealTime && isInsideBounds(game.mouseX, game.mouseY, game.backButtonBounds)) {
+                game.resetToMenu();
             }
             return;
         }
 
         game.isShooting = true;
-        game.flashTimer = 20;
+        game.flashTimer = CONFIG.gameplay.flashDuration;
 
-        if (game.cloudManager.isPointObscured(game.mouseX, game.mouseY, game.frames)) {
-            return;
-        }
+        if (game.cloudManager.isPointObscured(game.mouseX, game.mouseY, game.frames)) return;
 
         if (game.bugManager.checkHit(game.mouseX, game.mouseY)) {
             game.score++;

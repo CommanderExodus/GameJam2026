@@ -1,10 +1,13 @@
-import { BugManager } from '../entities/duck.js';
+import { CONFIG } from '../config.js';
+import { BugManager } from '../entities/bug.js';
 import { drawGun } from '../draw/gun.js';
 import { drawUI } from '../draw/ui.js';
 import { CloudManager } from '../draw/cloud.js';
 import { EnvHandler } from '../draw/env.js';
 import { setupEventListeners } from './mouse.js';
-import { StartMenu } from '../start_menu.js';
+import { StartMenu } from './start_menu.js';
+import { loadImage } from '../utils/imageLoader.js';
+import { drawHoverButton, isInsideBounds } from '../utils/buttonRenderer.js';
 
 export class GameHandler {
     constructor(canvas, ctx) {
@@ -22,7 +25,7 @@ export class GameHandler {
         this.mouseY = canvas.height / 2;
         this.isShooting = false;
         this.flashTimer = 0;
-        this.timerSeconds = 20;
+        this.timerSeconds = CONFIG.gameplay.timerDuration;
         this.lastUpdateTime = performance.now();
         this.isGameOver = false;
         this.gameOverTimer = 0;
@@ -31,13 +34,14 @@ export class GameHandler {
         this.startFadeTimer = 0;
         this.startMenu = new StartMenu(this);
 
-        this.backButtonW = 80;
-        this.backButtonH = 25;
-        this.backButtonX = canvas.width / 2 - this.backButtonW / 2;
-        this.backButtonY = canvas.height / 2 + 15;
+        this.backButtonBounds = {
+            x: canvas.width / 2 - CONFIG.button.width / 2,
+            y: canvas.height / 2 + CONFIG.gameOver.menuButtonYOffset,
+            width: CONFIG.button.width,
+            height: CONFIG.button.height,
+        };
 
-        this.menuButtonImg = new Image();
-        this.menuButtonImg.src = 'game/graphics/ui/menu.png';
+        this.menuButtonImg = loadImage(CONFIG.assets.ui.menuButton);
 
         setupEventListeners(this);
     }
@@ -47,14 +51,14 @@ export class GameHandler {
         this.isGameRunning = false;
         this.score = 0;
         this.frames = 0;
-        this.timerSeconds = 20;
+        this.timerSeconds = CONFIG.gameplay.timerDuration;
         this.bugManager.bugs = [];
         this.startMenu = new StartMenu(this);
     }
 
     startActualGame() {
         this.isGameRunning = true;
-        this.startFadeTimer = 30; // 30 frames fade in
+        this.startFadeTimer = CONFIG.gameplay.startFadeDuration;
     }
 
     update() {
@@ -79,60 +83,7 @@ export class GameHandler {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.isGameOver) {
-            this.gameOverTimer++;
-            
-            // Draw background stuff first so we can fade it
-            this.envHandler.drawBackground();
-            this.bugManager.updateAndDraw();
-            this.envHandler.drawGrass();
-            this.cloudManager.update();
-            drawGun(this);
-
-            const fadeDuration = 60; // 1 second roughly
-            const waitDuration = 60;
-
-            const alpha = Math.min(1, this.gameOverTimer / fadeDuration);
-            this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-            if (this.gameOverTimer > fadeDuration + waitDuration) {
-                // Show score
-                this.ctx.font = "8px 'Press Start 2P', monospace";
-                this.ctx.textAlign = "center";
-                this.ctx.fillStyle = "white";
-                
-                // Final Score
-                this.ctx.fillText(`SCORE`, this.canvas.width * 0.3, this.canvas.height / 2 - 15);
-                this.ctx.fillText(`${this.score}`, this.canvas.width * 0.3, this.canvas.height / 2);
-                
-                // High Score
-                this.ctx.fillText(`BEST`, this.canvas.width * 0.7, this.canvas.height / 2 - 15);
-                this.ctx.fillText(`${this.highScore}`, this.canvas.width * 0.7, this.canvas.height / 2);
-
-                // Back to menu button
-                const isHovered = this.mouseX >= this.backButtonX && this.mouseX <= this.backButtonX + this.backButtonW &&
-                                  this.mouseY >= this.backButtonY && this.mouseY <= this.backButtonY + this.backButtonH;
-                
-                let drawY = this.backButtonY + Math.sin(this.frames * 0.05) * 1;
-                let drawX = this.backButtonX;
-
-                if (isHovered) {
-                    drawY += 2;
-                    this.ctx.filter = 'brightness(80%)';
-                }
-
-                if (this.menuButtonImg.complete) {
-                    this.ctx.drawImage(this.menuButtonImg, drawX, drawY, this.backButtonW, this.backButtonH);
-                }
-
-                this.ctx.filter = 'none';
-                
-                this.ctx.textAlign = "left"; // reset
-            }
-
-            drawUI(this, true);
-            
-            this.frames++;
+            this.drawGameOver();
             return;
         }
 
@@ -141,29 +92,64 @@ export class GameHandler {
             return;
         }
 
+        this.drawGameplay();
+    }
+
+    drawGameplay() {
         this.envHandler.drawBackground();
         this.bugManager.spawn();
         this.bugManager.updateAndDraw();
-
         this.envHandler.drawGrass();
-        
         this.cloudManager.update();
-
         drawGun(this);
-        
+
         if (this.flashTimer > 0) {
             this.flashTimer--;
         }
 
         if (this.startFadeTimer > 0) {
-            const alpha = this.startFadeTimer / 30;
+            const alpha = this.startFadeTimer / CONFIG.gameplay.startFadeDuration;
             this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.startFadeTimer--;
         }
 
         drawUI(this);
+        this.frames++;
+    }
 
+    drawGameOver() {
+        this.gameOverTimer++;
+
+        this.envHandler.drawBackground();
+        this.bugManager.updateAndDraw();
+        this.envHandler.drawGrass();
+        this.cloudManager.update();
+        drawGun(this);
+
+        const { fadeDuration, waitDuration } = CONFIG.gameOver;
+
+        const alpha = Math.min(1, this.gameOverTimer / fadeDuration);
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.gameOverTimer > fadeDuration + waitDuration) {
+            this.ctx.font = `${CONFIG.ui.gameOverFontSize}px ${CONFIG.ui.fontFamily}`;
+            this.ctx.textAlign = 'center';
+            this.ctx.fillStyle = 'white';
+
+            this.ctx.fillText('SCORE', this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY);
+            this.ctx.fillText(`${this.score}`, this.canvas.width * CONFIG.gameOver.scoreLeftX, this.canvas.height / 2);
+
+            this.ctx.fillText('BEST', this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2 + CONFIG.gameOver.scoreLabelY);
+            this.ctx.fillText(`${this.highScore}`, this.canvas.width * CONFIG.gameOver.scoreRightX, this.canvas.height / 2);
+
+            drawHoverButton(this.ctx, this.menuButtonImg, this.backButtonBounds, this.mouseX, this.mouseY, this.frames);
+
+            this.ctx.textAlign = 'left';
+        }
+
+        drawUI(this, true);
         this.frames++;
     }
 }
