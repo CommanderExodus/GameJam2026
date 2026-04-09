@@ -9,7 +9,8 @@ export const CONFIG = {
     gameplay: {
         timerDuration: 20,
         flashDuration: 20,
-        startFadeDuration: 30,
+        startFadeDuration: 60,
+        startWaitDuration: 120,
         targetFps: 60,
     },
 

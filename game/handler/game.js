@@ -33,6 +33,7 @@ export class GameHandler {
 
         this.isGameRunning = false;
         this.startFadeTimer = 0;
+        this.startWaitTimer = 0;
         this.startMenu = new StartMenu(this);
 
         this.backButtonBounds = {
@@ -53,12 +54,14 @@ export class GameHandler {
         this.score = 0;
         this.timerSeconds = CONFIG.gameplay.timerDuration;
         this.bugManager.bugs = [];
+        this.startWaitTimer = 0;
         this.startMenu = new StartMenu(this);
     }
 
     startActualGame() {
         this.isGameRunning = true;
         this.startFadeTimer = CONFIG.gameplay.startFadeDuration;
+        this.startWaitTimer = CONFIG.gameplay.startWaitDuration;
     }
 
     update() {
@@ -69,14 +72,18 @@ export class GameHandler {
         this.frames++;
 
         if (this.isGameRunning && !this.isGameOver) {
-            this.timerSeconds -= deltaSeconds;
-            if (this.timerSeconds <= 0) {
-                this.timerSeconds = 0;
-                this.isGameOver = true;
-                this.gameOverTimer = 0;
-                if (this.score > this.highScore) {
-                    this.highScore = this.score;
-                    localStorage.setItem('highScore', this.highScore);
+            if (this.startWaitTimer > 0) {
+                this.startWaitTimer--;
+            } else {
+                this.timerSeconds -= deltaSeconds;
+                if (this.timerSeconds <= 0) {
+                    this.timerSeconds = 0;
+                    this.isGameOver = true;
+                    this.gameOverTimer = 0;
+                    if (this.score > this.highScore) {
+                        this.highScore = this.score;
+                        localStorage.setItem('highScore', this.highScore);
+                    }
                 }
             }
         }
@@ -99,7 +106,9 @@ export class GameHandler {
 
     drawGameplay() {
         this.envHandler.drawBackground();
-        this.bugManager.spawn();
+        if (this.startWaitTimer <= 0) {
+            this.bugManager.spawn();
+        }
         this.bugManager.updateAndDraw();
         this.envHandler.drawGrass();
         this.cloudManager.update();
@@ -110,7 +119,8 @@ export class GameHandler {
         }
 
         if (this.startFadeTimer > 0) {
-            const alpha = this.startFadeTimer / CONFIG.gameplay.startFadeDuration;
+            let alpha = this.startFadeTimer / CONFIG.gameplay.startFadeDuration;
+            alpha = Math.round(alpha * 4) / 4; // 5 stages
             this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.startFadeTimer--;
@@ -130,7 +140,8 @@ export class GameHandler {
 
         const { fadeDuration, waitDuration } = CONFIG.gameOver;
 
-        const alpha = Math.min(1, this.gameOverTimer / fadeDuration);
+        let alpha = Math.min(1, this.gameOverTimer / fadeDuration);
+        alpha = Math.round(alpha * 4) / 4; // 5 stages
         this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
