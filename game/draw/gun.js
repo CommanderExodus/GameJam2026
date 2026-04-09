@@ -11,14 +11,28 @@ export function drawGun(game) {
 
     const isShooting = game.flashTimer > 0;
 
-    const mouseSway = isShooting ? { x: 0, y: 0 } : Bobbing.getMouseSway(
-        game.mouseX, game.mouseY,
+    if (!game.gunState) {
+        game.gunState = {
+            frames: game.frames,
+            mouseX: game.mouseX,
+            mouseY: game.mouseY
+        };
+    }
+
+    if (!isShooting) {
+        game.gunState.frames++;
+        game.gunState.mouseX = game.mouseX;
+        game.gunState.mouseY = game.mouseY;
+    }
+
+    const mouseSway = Bobbing.getMouseSway(
+        game.gunState.mouseX, game.gunState.mouseY,
         game.canvas.width, game.canvas.height,
         CONFIG.gun.mouseSwayFactor
     );
 
-    const breathing = isShooting ? { x: 0, y: 0 } : Bobbing.getBreathing(
-        game.frames,
+    const breathing = Bobbing.getBreathing(
+        game.gunState.frames,
         CONFIG.gun.breathingFreqX, CONFIG.gun.breathingAmpX,
         CONFIG.gun.breathingFreqY, CONFIG.gun.breathingAmpY
     );
@@ -30,7 +44,7 @@ export function drawGun(game) {
     );
 
     const gunImg = isShooting ? gunFiring : gunIdle;
-    const scale = isShooting ? CONFIG.gun.defaultScale : Bobbing.getScale(game.frames, CONFIG.gun.defaultScale, CONFIG.gun.scaleFrequency, CONFIG.gun.scaleAmplitude);
+    const scale = Bobbing.getScale(game.gunState.frames, CONFIG.gun.defaultScale, CONFIG.gun.scaleFrequency, CONFIG.gun.scaleAmplitude);
 
     let width = 0;
     let height = 0;

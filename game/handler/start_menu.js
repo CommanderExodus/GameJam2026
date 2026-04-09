@@ -12,6 +12,7 @@ export class StartMenu {
         this.startButtonImg = loadImage(CONFIG.assets.ui.startButton);
         this.crosshairImg = loadImage(CONFIG.assets.ui.crosshair);
         this.logoImg = loadImage(CONFIG.assets.ui.logo);
+        this.sunImg = loadImage(CONFIG.assets.env.sun);
 
         this.buttonBounds = {
             x: (game.canvas.width - CONFIG.button.width) / 2,
@@ -22,7 +23,7 @@ export class StartMenu {
 
         this.isLoaded = false;
         onAllLoaded(
-            [this.backgroundImg, this.grassImg, this.startButtonImg, this.crosshairImg, this.logoImg],
+            [this.backgroundImg, this.grassImg, this.sunImg, this.startButtonImg, this.crosshairImg, this.logoImg],
             () => { this.isLoaded = true; }
         );
 
@@ -40,6 +41,9 @@ export class StartMenu {
         }
 
         this.game.ctx.drawImage(this.backgroundImg, 0, 0, this.game.canvas.width, this.game.canvas.height);
+
+        const bobY = Math.sin(this.frames * CONFIG.sun.bobFrequency) * CONFIG.sun.bobAmplitude;
+        this.game.ctx.drawImage(this.sunImg, CONFIG.sun.x, CONFIG.sun.y + bobY);
 
         const grassHeight = this.game.envHandler.grassHeight;
         this.game.ctx.drawImage(this.grassImg, 0, this.game.canvas.height - grassHeight, this.game.canvas.width, grassHeight);
