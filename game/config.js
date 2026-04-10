@@ -111,6 +111,13 @@ export const CONFIG = {
         hoverFilter: 'brightness(80%)',
     },
 
+    soundButton: {
+        width: 36,
+        height: 36,
+        paddingBottom: -10,
+        paddingRight: -10,
+    },
+
     gameOver: {
         fadeDuration: 60,
         waitDuration: 60,
@@ -166,6 +173,8 @@ export const CONFIG = {
             startButton: 'game/graphics/ui/start.png',
             menuButton: 'game/graphics/ui/menu.png',
             logo: 'game/graphics/ui/logo.png',
+            soundOn: 'game/graphics/sound/sound.png',
+            soundOff: 'game/graphics/sound/muted.png',
         },
         butterfly: [
             'game/graphics/butterfly/Gold Butterfly.png',

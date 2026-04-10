@@ -13,6 +13,8 @@ export class StartMenu {
         this.crosshairImg = loadImage(CONFIG.assets.ui.crosshair);
         this.logoImg = loadImage(CONFIG.assets.ui.logo);
         this.sunImg = loadImage(CONFIG.assets.env.sun);
+        this.soundOnImg = loadImage(CONFIG.assets.ui.soundOn);
+        this.soundOffImg = loadImage(CONFIG.assets.ui.soundOff);
 
         this.buttonBounds = {
             x: (game.canvas.width - CONFIG.button.width) / 2,
@@ -21,9 +23,18 @@ export class StartMenu {
             height: CONFIG.button.height,
         };
 
+        this.soundButtonBounds = {
+            x: game.canvas.width - CONFIG.soundButton.width - CONFIG.soundButton.paddingRight,
+            y: game.canvas.height - CONFIG.soundButton.height - CONFIG.soundButton.paddingBottom,
+            width: CONFIG.soundButton.width,
+            height: CONFIG.soundButton.height,
+        };
+
         this.bgMusic = new Audio(CONFIG.assets.music.menu);
         this.bgMusic.loop = true;
         this.bgMusic.volume = 1;
+        this.isMuted = true;
+        this.bgMusic.muted = this.isMuted;
 
         const startMusic = () => {
             if (!this.game.isGameRunning) {
@@ -40,7 +51,7 @@ export class StartMenu {
 
         this.isLoaded = false;
         onAllLoaded(
-            [this.backgroundImg, this.grassImg, this.sunImg, this.startButtonImg, this.crosshairImg, this.logoImg],
+            [this.backgroundImg, this.grassImg, this.sunImg, this.startButtonImg, this.crosshairImg, this.logoImg, this.soundOnImg, this.soundOffImg],
             () => { this.isLoaded = true; }
         );
 
@@ -81,6 +92,14 @@ export class StartMenu {
             this.game.mouseX, this.game.mouseY, this.frames
         );
 
+        const currentSoundImg = this.isMuted ? this.soundOffImg : this.soundOnImg;
+        if (currentSoundImg.complete) {
+            drawHoverButton(
+                this.game.ctx, currentSoundImg, this.soundButtonBounds,
+                this.game.mouseX, this.game.mouseY, this.frames
+            );
+        }
+
         drawOutlinedText(
             this.game.ctx,
             `BEST:${this.game.highScore}`,
@@ -101,6 +120,13 @@ export class StartMenu {
     handleMouseDown(event) {
         if (event.button !== 0) return;
         if (this.game.isGameRunning) return;
+
+        if (isInsideBounds(this.game.mouseX, this.game.mouseY, this.soundButtonBounds)) {
+            event.stopImmediatePropagation();
+            this.isMuted = !this.isMuted;
+            this.bgMusic.muted = this.isMuted;
+            return;
+        }
 
         if (isInsideBounds(this.game.mouseX, this.game.mouseY, this.buttonBounds)) {
             event.stopImmediatePropagation();
