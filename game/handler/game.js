@@ -54,6 +54,9 @@ export class GameHandler {
             outline: loadImage(CONFIG.assets.trophy.outline),
         };
 
+        this.gameplayMusic = new Audio(CONFIG.assets.music.gameplay);
+        this.gameplayMusic.volume = 1;
+
         setupEventListeners(this);
     }
 
@@ -66,7 +69,13 @@ export class GameHandler {
         this.butterfly = null;
         this.butterflySpawnTimer = Math.floor(Math.random() * (CONFIG.butterfly.maxSpawnDelay - CONFIG.butterfly.minSpawnDelay + 1)) + CONFIG.butterfly.minSpawnDelay;
         this.startWaitTimer = 0;
+        this.gameplayMusic.pause();
+        this.gameplayMusic.currentTime = 0;
+        
+        const previousMuteState = this.startMenu ? this.startMenu.isMuted : true;
         this.startMenu = new StartMenu(this);
+        this.startMenu.isMuted = previousMuteState;
+        this.startMenu.bgMusic.muted = previousMuteState;
     }
 
     startActualGame() {
@@ -101,6 +110,11 @@ export class GameHandler {
     updateGameplay(deltaSeconds) {
         if (this.startWaitTimer > 0) {
             this.startWaitTimer--;
+            if (this.startWaitTimer === 0) {
+                this.gameplayMusic.muted = this.startMenu.isMuted;
+                this.gameplayMusic.currentTime = 0;
+                this.gameplayMusic.play().catch(e => console.warn("Audio play failed:", e));
+            }
         } else {
             this.timerSeconds -= deltaSeconds;
             if (this.timerSeconds <= 0) {

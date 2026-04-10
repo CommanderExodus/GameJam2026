@@ -188,6 +188,7 @@ export const CONFIG = {
         },
         music: {
             menu: 'game/music/menu.wav',
+            gameplay: 'game/music/gameplay.wav',
         },
     },
 };
