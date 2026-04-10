@@ -187,8 +187,17 @@ export const CONFIG = {
             outline: 'game/graphics/trophy/outline.png',
         },
         music: {
-            menu: 'game/music/menu.wav',
-            gameplay: 'game/music/gameplay.wav',
+            menu: 'game/audio/music/menu.mp3',
+            gameplay: 'game/audio/music/gameplay.mp3',
+        },
+        sfx: {
+            gun: [
+                'game/audio/sfx/gun/a.wav',
+                'game/audio/sfx/gun/b.wav',
+                'game/audio/sfx/gun/c.wav',
+                'game/audio/sfx/gun/d.wav',
+            ],
         },
     },
 };
+

@@ -57,6 +57,12 @@ export class GameHandler {
         this.gameplayMusic = new Audio(CONFIG.assets.music.gameplay);
         this.gameplayMusic.volume = 1;
 
+        this.gunSfx = CONFIG.assets.sfx.gun.map(path => {
+            const audio = new Audio(path);
+            audio.volume = 0.4;
+            return audio;
+        });
+
         setupEventListeners(this);
     }
 
@@ -71,7 +77,7 @@ export class GameHandler {
         this.startWaitTimer = 0;
         this.gameplayMusic.pause();
         this.gameplayMusic.currentTime = 0;
-        
+
         const previousMuteState = this.startMenu ? this.startMenu.isMuted : true;
         this.startMenu = new StartMenu(this);
         this.startMenu.isMuted = previousMuteState;
@@ -82,6 +88,30 @@ export class GameHandler {
         this.isGameRunning = true;
         this.startFadeTimer = CONFIG.gameplay.startFadeDuration;
         this.startWaitTimer = CONFIG.gameplay.startWaitDuration;
+    }
+
+    shoot() {
+        if (this.isGameOver) return;
+
+        this.isShooting = true;
+        this.flashTimer = CONFIG.gun.flashFrames;
+
+        // Play random gun sound if not muted
+        const isMuted = this.startMenu ? this.startMenu.isMuted : true;
+        if (!isMuted) {
+            const randomSound = this.gunSfx[Math.floor(Math.random() * this.gunSfx.length)];
+            randomSound.currentTime = 0;
+            randomSound.play().catch(e => console.warn("SFX play failed:", e));
+        }
+
+        if (this.bugManager.checkHit(this.mouseX, this.mouseY)) {
+            this.score++;
+        }
+
+        if (this.butterfly && !this.butterfly.isDead && this.butterfly.checkHit(this.mouseX, this.mouseY)) {
+            this.score += CONFIG.butterfly.scoreValue;
+            this.butterfly.kill();
+        }
     }
 
     update() {

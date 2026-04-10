@@ -22,18 +22,9 @@ export function setupEventListeners(game) {
             return;
         }
 
-        game.isShooting = true;
-        game.flashTimer = CONFIG.gun.flashFrames;
-
-        if (game.bugManager.checkHit(game.mouseX, game.mouseY)) {
-            game.score++;
-        }
-
-        if (game.butterfly && !game.butterfly.isDead && game.butterfly.checkHit(game.mouseX, game.mouseY)) {
-            game.score += CONFIG.butterfly.scoreValue;
-            game.butterfly.kill();
-        }
+        game.shoot();
     });
+
 
     game.canvas.addEventListener('mouseup', () => {
         game.isShooting = false;
