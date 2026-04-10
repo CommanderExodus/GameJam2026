@@ -21,6 +21,23 @@ export class StartMenu {
             height: CONFIG.button.height,
         };
 
+        this.bgMusic = new Audio(CONFIG.assets.music.menu);
+        this.bgMusic.loop = true;
+        this.bgMusic.volume = 1;
+
+        const startMusic = () => {
+            if (!this.game.isGameRunning) {
+                this.bgMusic.play().catch(e => console.warn("Audio play failed:", e));
+            }
+            window.removeEventListener('click', startMusic);
+            window.removeEventListener('keydown', startMusic);
+        };
+
+        this.bgMusic.play().catch(() => {
+            window.addEventListener('click', startMusic);
+            window.addEventListener('keydown', startMusic);
+        });
+
         this.isLoaded = false;
         onAllLoaded(
             [this.backgroundImg, this.grassImg, this.sunImg, this.startButtonImg, this.crosshairImg, this.logoImg],
@@ -88,6 +105,8 @@ export class StartMenu {
         if (isInsideBounds(this.game.mouseX, this.game.mouseY, this.buttonBounds)) {
             event.stopImmediatePropagation();
             this.game.canvas.removeEventListener('mousedown', this.handleMouseDown);
+            this.bgMusic.pause();
+            this.bgMusic.currentTime = 0;
             this.game.startActualGame();
         }
     }

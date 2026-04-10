@@ -14,27 +14,28 @@ export class Butterfly {
         this.time = 0;
         this.frame = 0;
 
+        const spawnMargin = this.size * 2;
         const edge = Math.floor(Math.random() * 4);
         if (edge === 0) {
-            this.centerX = -this.size;
+            this.centerX = -spawnMargin;
             this.centerY = Math.random() * canvas.height;
-            this.targetX = canvas.width + this.size;
+            this.targetX = canvas.width + spawnMargin;
             this.targetY = Math.random() * canvas.height;
         } else if (edge === 1) {
-            this.centerX = canvas.width + this.size;
+            this.centerX = canvas.width + spawnMargin;
             this.centerY = Math.random() * canvas.height;
-            this.targetX = -this.size;
+            this.targetX = -spawnMargin;
             this.targetY = Math.random() * canvas.height;
         } else if (edge === 2) {
             this.centerX = Math.random() * canvas.width;
-            this.centerY = -this.size;
+            this.centerY = -spawnMargin;
             this.targetX = Math.random() * canvas.width;
-            this.targetY = canvas.height + this.size;
+            this.targetY = canvas.height + spawnMargin;
         } else {
             this.centerX = Math.random() * canvas.width;
-            this.centerY = canvas.height + this.size;
+            this.centerY = canvas.height + spawnMargin;
             this.targetX = Math.random() * canvas.width;
-            this.targetY = -this.size;
+            this.targetY = -spawnMargin;
         }
 
         this.x = this.centerX;
@@ -81,8 +82,9 @@ export class Butterfly {
     }
 
     isOffScreen(canvas) {
-        return this.x < -this.size * 2 || this.x > canvas.width + this.size * 2 ||
-               this.y < -this.size * 2 || this.y > canvas.height + this.size * 2;
+        const destroyMargin = this.size * 2 + this.amplitudeX * 2 + this.amplitudeY * 2;
+        return this.x < -destroyMargin || this.x > canvas.width + destroyMargin ||
+               this.y < -destroyMargin || this.y > canvas.height + destroyMargin;
     }
 
     kill() {

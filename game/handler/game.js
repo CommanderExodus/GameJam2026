@@ -23,6 +23,7 @@ export class GameHandler {
         this.bugManager = new BugManager(this);
         this.cloudManager = new CloudManager(this);
         this.butterfly = null;
+        this.butterflySpawnTimer = Math.floor(Math.random() * (CONFIG.butterfly.maxSpawnDelay - CONFIG.butterfly.minSpawnDelay + 1)) + CONFIG.butterfly.minSpawnDelay;
 
         this.mouseX = canvas.width / 2;
         this.mouseY = canvas.height / 2;
@@ -62,6 +63,8 @@ export class GameHandler {
         this.score = 0;
         this.timerSeconds = CONFIG.gameplay.timerDuration;
         this.bugManager.bugs = [];
+        this.butterfly = null;
+        this.butterflySpawnTimer = Math.floor(Math.random() * (CONFIG.butterfly.maxSpawnDelay - CONFIG.butterfly.minSpawnDelay + 1)) + CONFIG.butterfly.minSpawnDelay;
         this.startWaitTimer = 0;
         this.startMenu = new StartMenu(this);
     }
@@ -115,8 +118,13 @@ export class GameHandler {
     }
 
     updateButterfly() {
-        if (!this.butterfly && this.frames % CONFIG.butterfly.spawnRate === 0) {
-            this.butterfly = new Butterfly(this.canvas);
+        if (!this.butterfly) {
+            if (this.butterflySpawnTimer > 0) {
+                this.butterflySpawnTimer--;
+            } else {
+                this.butterfly = new Butterfly(this.canvas);
+                this.butterflySpawnTimer = Math.floor(Math.random() * (CONFIG.butterfly.maxSpawnDelay - CONFIG.butterfly.minSpawnDelay + 1)) + CONFIG.butterfly.minSpawnDelay;
+            }
         }
 
         if (this.butterfly) {

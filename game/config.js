@@ -30,7 +30,8 @@ export const CONFIG = {
 
     butterfly: {
         size: 20,
-        spawnRate: 600,
+        minSpawnDelay: 600,
+        maxSpawnDelay: 1200,
         amplitudeX: 15,
         amplitudeY: 10,
         frequency: 0.015,
@@ -175,6 +176,9 @@ export const CONFIG = {
             silver: 'game/graphics/trophy/silver.png',
             gold: 'game/graphics/trophy/gold.png',
             outline: 'game/graphics/trophy/outline.png',
+        },
+        music: {
+            menu: 'game/music/menu.wav',
         },
     },
 };
